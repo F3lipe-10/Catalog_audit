@@ -6,7 +6,8 @@ Genera un archivo migracion.sql con todos los INSERT necesarios.
 No requiere instalar ningún paquete extra.
 
 USO:
-    python migrar_a_sql.py
+    python migrar_a_sql.py                  # migración completa
+    python migrar_a_sql.py --solo-categorias  # solo sube categorias.json
 
 Luego abre Supabase → SQL Editor → pega el contenido de migracion.sql → Run.
 
@@ -18,9 +19,11 @@ Archivos migrados:
 
 import json
 import os
+import sys
 
 
 RUTA_SALIDA = "migracion.sql"
+RUTA_SALIDA_CATS = "migracion_categorias.sql"
 
 
 def _escapar(valor: str) -> str:
@@ -120,5 +123,32 @@ DO UPDATE SET
     print("  4. Listo para hacer el deploy!")
 
 
+def solo_categorias():
+    ruta_cats = os.path.join(os.path.dirname(__file__), "categorias.json")
+    if not os.path.exists(ruta_cats):
+        print("ERROR: categorias.json no encontrado.")
+        return
+    with open(ruta_cats, "r", encoding="utf-8") as f:
+        cats = json.load(f)
+    valor_esc = _escapar(json.dumps(cats, ensure_ascii=False))
+    contenido = f"""\
+-- Actualizar categorias.json en Supabase
+INSERT INTO configuracion (clave, valor)
+VALUES ('categorias', '{valor_esc}')
+ON CONFLICT (clave)
+DO UPDATE SET
+    valor          = EXCLUDED.valor,
+    actualizado_en = CURRENT_TIMESTAMP;
+"""
+    with open(RUTA_SALIDA_CATS, "w", encoding="utf-8") as f:
+        f.write(contenido)
+    tam_kb = os.path.getsize(RUTA_SALIDA_CATS) / 1024
+    print(f"Archivo generado: {RUTA_SALIDA_CATS} ({tam_kb:.1f} KB)")
+    print("Pega el contenido en Supabase → SQL Editor → Run.")
+
+
 if __name__ == "__main__":
-    main()
+    if "--solo-categorias" in sys.argv:
+        solo_categorias()
+    else:
+        main()
