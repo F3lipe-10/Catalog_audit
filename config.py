@@ -191,7 +191,7 @@ PALABRAS_GRAB_AND_GO = [
     "GARDEN SALAD", "Grab N Go", "Gummy", "Hk Salad", "Hk Burrito", "Hk Entrée","saladgreek",
     "Hk breakfast burrito", "fresh salad red bliss potatoe", "cobb salad", "greek salad", 
     "southwest chkn salad", "cf map salad", "fresh salad","salad","meal","breakfast",
-    "carrot/Broccoli Cup","Carrot/celery Cup"
+    "carrot/Broccoli Cup","Carrot/celery Cup", "snak pak"
 ]
 
 # ------------------------------------------------------------------------------
