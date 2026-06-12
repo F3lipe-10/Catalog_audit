@@ -92,6 +92,39 @@ CREATE TABLE IF NOT EXISTS asignaciones (
     else:
         print("    data/cache_carne.json no encontrado, omitiendo.")
 
+    # ── asignaciones.xlsx ──────────────────────────────────────────────────
+    ruta_asign = os.path.join(os.path.dirname(__file__), "data", "asignaciones.xlsx")
+    if os.path.exists(ruta_asign):
+        try:
+            import pandas as pd
+            df = pd.read_excel(ruta_asign)
+            lineas_asign = []
+            for _, row in df.iterrows():
+                sid = str(row.get("Supplier ID", "")).replace(".0", "").strip()
+                if not sid or sid == "nan":
+                    continue
+                name = _escapar(str(row.get("Supplier Name", "") or ""))
+                person = _escapar(str(row.get("Assigned to", "") or ""))
+                lineas_asign.append(
+                    f"INSERT INTO asignaciones (supplier_id, supplier_name, assigned_to) "
+                    f"VALUES ('{sid}', '{name}', '{person}') "
+                    f"ON CONFLICT (supplier_id) DO UPDATE SET "
+                    f"supplier_name = EXCLUDED.supplier_name, assigned_to = EXCLUDED.assigned_to;"
+                )
+            if lineas_asign:
+                bloques.append(f"""\
+
+-- ============================================================
+-- PASO 3: Migrar asignaciones ({len(lineas_asign)} filas)
+-- ============================================================
+""")
+                bloques.append("\n".join(lineas_asign))
+                print(f"OK  asignaciones.xlsx: {len(lineas_asign)} filas incluidas.")
+        except Exception as e:
+            print(f"    Error leyendo asignaciones.xlsx: {e}")
+    else:
+        print("    data/asignaciones.xlsx no encontrado, omitiendo.")
+
     # ── categorias.json ─────────────────────────────────────────────────────
     ruta_cats = os.path.join(os.path.dirname(__file__), "categorias.json")
     if os.path.exists(ruta_cats):
@@ -101,7 +134,7 @@ CREATE TABLE IF NOT EXISTS asignaciones (
         bloques.append(f"""\
 
 -- ============================================================
--- PASO 3: Migrar categorias.json
+-- PASO 4: Migrar categorias.json
 -- ============================================================
 INSERT INTO configuracion (clave, valor)
 VALUES ('categorias', '{valor_esc}')
