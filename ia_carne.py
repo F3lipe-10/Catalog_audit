@@ -6,7 +6,7 @@ Usa la API de DeepSeek (V4-Flash) para clasificar productos.
 
 ESTRATEGIA EN 5 PASOS para ahorrar requests:
 
-  1. Si el item está en data/cache_carne.json (caché persistente en disco)
+  1. Si el item está en la tabla cache_carne de PostgreSQL (Supabase)
      -> usar valor guardado, sin IA.
   2. Si el nombre contiene una palabra OBVIA de carne (beef, chicken, etc.)
      -> carne directa, sin IA.
@@ -15,7 +15,7 @@ ESTRATEGIA EN 5 PASOS para ahorrar requests:
   4. Caché de sesión: no se consulta dos veces el mismo producto en la misma
      sesión de Streamlit.
   5. Los productos restantes se agrupan en LOTES de 20 y se mandan a DeepSeek.
-     LOS RESULTADOS SE GUARDAN A DISCO automáticamente para no volver a
+     LOS RESULTADOS SE GUARDAN EN BD automáticamente para no volver a
      consultarlos nunca más.
 
 ⚠️ La API key se lee de st.secrets["deepseek"]["api_key"] o variable
@@ -23,7 +23,9 @@ ESTRATEGIA EN 5 PASOS para ahorrar requests:
 ================================================================================
 """
 
+import os
 import re
+import json
 import time
 from functools import lru_cache
 import streamlit as st
