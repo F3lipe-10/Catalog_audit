@@ -65,6 +65,12 @@ CREATE TABLE IF NOT EXISTS configuracion (
     valor          TEXT NOT NULL,
     actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS asignaciones (
+    supplier_id    TEXT PRIMARY KEY,
+    supplier_name  TEXT,
+    assigned_to    TEXT
+);
 """)
 
     # ── cache_carne.json ────────────────────────────────────────────────────

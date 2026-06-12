@@ -52,6 +52,13 @@ def inicializar_tablas() -> None:
                 actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """))
+        s.execute(text("""
+            CREATE TABLE IF NOT EXISTS asignaciones (
+                supplier_id    TEXT PRIMARY KEY,
+                supplier_name  TEXT,
+                assigned_to    TEXT
+            )
+        """))
         s.commit()
 
 
@@ -149,6 +156,45 @@ def cargar_categorias() -> dict:
     except Exception as e:
         print(f"[db] error cargando categorias: {e}")
         return {}
+
+
+def cargar_asignaciones_db() -> list[dict]:
+    """Devuelve todas las asignaciones como lista de dicts."""
+    conn = _get_conn()
+    try:
+        inicializar_tablas()
+        df = conn.query(
+            "SELECT supplier_id, supplier_name, assigned_to FROM asignaciones",
+            ttl=0,
+        )
+        return df.to_dict("records")
+    except Exception as e:
+        print(f"[db] error cargando asignaciones: {e}")
+        return []
+
+
+def guardar_asignaciones_db(filas: list[dict]) -> bool:
+    """
+    Reemplaza todas las asignaciones en la BD.
+    Cada dict debe tener: supplier_id, supplier_name, assigned_to.
+    """
+    conn = _get_conn()
+    try:
+        with conn.session as s:
+            s.execute(text("DELETE FROM asignaciones"))
+            if filas:
+                s.execute(
+                    text("""
+                        INSERT INTO asignaciones (supplier_id, supplier_name, assigned_to)
+                        VALUES (:supplier_id, :supplier_name, :assigned_to)
+                    """),
+                    filas,
+                )
+            s.commit()
+        return True
+    except Exception as e:
+        print(f"[db] error guardando asignaciones: {e}")
+        return False
 
 
 def guardar_categorias(data: dict) -> bool:

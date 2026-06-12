@@ -69,23 +69,30 @@ def leer_excel(archivo_bytes: bytes, nombre: str = "archivo", skip_rows: int = 0
 
 def cargar_asignaciones(ruta: str = None) -> pd.DataFrame:
     """
-    Carga el archivo de asignaciones (distribuidor -> persona).
-    Si no existe, devuelve DataFrame vacío.
-
-    Espera 3 columnas:
-      - Supplier ID    (para hacer el match con el catálogo)
-      - Supplier Name  (para mostrar en la tabla final)
-      - Assigned to    (la persona encargada)
+    Carga las asignaciones (distribuidor -> persona) desde la BD (Supabase).
+    Si la BD falla o está vacía, intenta el Excel local como fallback.
     """
-    ruta = ruta or config.RUTA_ASIGNACIONES
+    import db
     cols_esperadas = [
         config.COL_ASSIGN_SUPPLIER_ID,
         config.COL_ASSIGN_SUPPLIER,
         config.COL_ASSIGN_PERSON,
     ]
+
+    filas = db.cargar_asignaciones_db()
+    if filas:
+        df = pd.DataFrame(filas)
+        df = df.rename(columns={
+            "supplier_id":   config.COL_ASSIGN_SUPPLIER_ID,
+            "supplier_name": config.COL_ASSIGN_SUPPLIER,
+            "assigned_to":   config.COL_ASSIGN_PERSON,
+        })
+        return df[cols_esperadas]
+
+    # Fallback: archivo Excel local
+    ruta = ruta or config.RUTA_ASIGNACIONES
     try:
         df = pd.read_excel(ruta)
-        # Verificar que tenga al menos la columna del ID y la persona
         faltantes = [c for c in cols_esperadas if c not in df.columns]
         if faltantes:
             st.warning(
@@ -95,7 +102,7 @@ def cargar_asignaciones(ruta: str = None) -> pd.DataFrame:
             return pd.DataFrame(columns=cols_esperadas)
         return df
     except FileNotFoundError:
-        st.warning(f"⚠️ No se encontró el archivo de asignaciones en {ruta}")
+        st.warning("⚠️ No hay asignaciones en la BD ni archivo local.")
         return pd.DataFrame(columns=cols_esperadas)
     except Exception as e:
         st.error(f"❌ Error al leer asignaciones: {e}")
@@ -147,8 +154,9 @@ def validar_columnas_catalogo(df: pd.DataFrame) -> list:
 
 
 def validar_columnas_bot(df: pd.DataFrame) -> list:
-    """Verifica que el BOT tenga la columna de SKU."""
-    return [] if config.COL_BOT_SKU in df.columns else [config.COL_BOT_SKU]
+    """Verifica que el BOT tenga las columnas de SKU y proveedor."""
+    requeridas = [config.COL_BOT_SKU, config.COL_BOT_SUPPLIER]
+    return [c for c in requeridas if c not in df.columns]
 
 
 def validar_columnas_bot_char(df: pd.DataFrame) -> list:
@@ -308,6 +316,27 @@ def procesar_catalogo(
 
     progreso_clas.empty()
 
+    # Para el estado de divisiones BOT: set de (sku, supplier) con normalización robusta.
+    # Un item está en el BOT solo si coinciden AMBOS: SKU y nombre del proveedor.
+    _tiene_cols_bot = (
+        not df_bot.empty
+        and config.COL_BOT_SKU in df_bot.columns
+        and config.COL_BOT_SUPPLIER in df_bot.columns
+    )
+    if _tiene_cols_bot:
+        _bot_skus   = df_bot[config.COL_BOT_SKU].apply(_normalizar_id)
+        _bot_sups   = df_bot[config.COL_BOT_SUPPLIER].fillna("").astype(str).str.strip().str.upper()
+        _bot_set    = set(zip(_bot_skus, _bot_sups))
+        _bot_set.discard(("", ""))
+    else:
+        _bot_set = set()
+
+    _cat_sups = df[config.COL_SUPPLIER].fillna("").astype(str).str.strip().str.upper().tolist()
+    en_bot_arr = [
+        (_normalizar_id(sku), sup) in _bot_set
+        for sku, sup in zip(skus_lista, _cat_sups)
+    ]
+
     # Mostrar info de caché
     items_unicos = len(cache_clasificacion)
     if items_unicos < total_filas:
@@ -346,11 +375,23 @@ def procesar_catalogo(
         estado = ["invalid" if inv else e for inv, e in zip(es_invalid, estado)]
         df[f"{div} (estado)"] = estado
 
-        # Errores de Initial Catalog en divisiones BOT → estado propio (naranja)
+        # Para Initial Catalog en divisiones BOT: recalcular estado directo contra BOT
+        # (evita que un en_bot incorrecto en la clasificación afecte el color)
         if div in config.DIVISIONES_REQUIEREN_BOT:
-            es_ic = df["Categoria"] == config.CAT_INITIAL_CATALOG
-            mask = es_ic & (df[f"{div} (estado)"] == "error")
-            df.loc[mask, f"{div} (estado)"] = "bot_error"
+            es_ic_list = (df["Categoria"] == config.CAT_INITIAL_CATALOG).tolist()
+            previo_list = previo.tolist()
+            for i in range(len(estado)):
+                if not es_ic_list[i] or estado[i] in ("blank", "invalid"):
+                    continue
+                if en_bot_arr[i] and previo_list[i] == "E":
+                    estado[i] = "ok"
+                elif en_bot_arr[i]:
+                    estado[i] = "bot_error"
+                elif previo_list[i] == "R":
+                    estado[i] = "ok"
+                else:
+                    estado[i] = "bot_error"
+            df[f"{div} (estado)"] = estado
 
         # Reemplazar visualmente los blanks por un guion (solo en blanks NO inválidos)
         df[div] = df[div].astype(object)
