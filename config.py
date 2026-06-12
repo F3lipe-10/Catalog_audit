@@ -307,11 +307,11 @@ EXCEPCIONES_POR_SKU_SUPPLIER = [
 # Se aplica DESPUÉS de EXCEPCIONES_POR_CATEGORIA_SUPPLIER.
 EXCEPCIONES_POR_KEYWORDS_SUPPLIER = [
     {
-        "nombre": "Black River - Beef Local (no ground): expuesto solo en UNIVERSITIES",
+        "nombre": "Black River - Beef Local (no ground): expuesto en todas menos SCHOOL SERVICES",
         "supplier_id": "1000259",
         "palabras_todas": ["beef", "local"],
         "palabras_excluidas": ["ground"],
-        "divisiones_expuestas": ["UNIVERSITIES"],
+        "divisiones_expuestas": [d for d in DIVISIONES if d != "SCHOOL SERVICES"],
     },
 ]
 
@@ -324,17 +324,18 @@ EXCEPCIONES_POR_KEYWORDS_SUPPLIER = [
 # divisiones_expuestas: lista de divisiones canónicas, o None para todas.
 EXCEPCIONES_POR_CATEGORIA_SUPPLIER = [
     {
-        "nombre": "Native Mine - Local Meat expuesto en UNIVERSITIES",
+        "nombre": "Native Maine - Local Meat expuesto en todas menos SCHOOL SERVICES",
         "supplier_id": "1000641",
         "categorias": ["Local Meat"],
-        "divisiones_expuestas": ["UNIVERSITIES"],
+        "divisiones_expuestas": [d for d in DIVISIONES if d != "SCHOOL SERVICES"],
     },
 ]
 
 # ------------------------------------------------------------------------------
 # COLUMNAS DEL ARCHIVO BOT
 # ------------------------------------------------------------------------------
-COL_BOT_SKU = "SI_SKU"   # Columna en BOT que contiene el número de producto
+COL_BOT_SKU      = "SI_SKU"   # Columna en BOT que contiene el número de producto
+COL_BOT_SUPPLIER = "PCC_NM"   # Columna en BOT que contiene el nombre del proveedor
 
 # ------------------------------------------------------------------------------
 # COLUMNAS DEL ARCHIVO BOT CHARCUTERIE
@@ -438,16 +439,8 @@ EXCEPCIONES_NO_CARNE = [
 COLOR_OK    = "#1f9d55"   # verde - acertó
 COLOR_ERROR = "#d63031"   # rojo  - se equivocó
 COLOR_BLANK = "#d63031"   # gris  - celda vacía (faltó completar)
-#COLOR_BLANK = "#9aa0a6"   # gris  - celda vacía (faltó completar)
 COLOR_INVALID      = "#f39c12"  # naranja - item inválido (descripción basura, revisar)
 COLOR_BOT_MISMATCH = "#e67e22"  # naranja oscuro - error por BOT en Initial Catalog
-#COLOR_BLUE = "#3498db"     # azul  - item válido (descripción clara, revisar)
-"""
-COLOR_OK = "#3498db" 
-COLOR_ERROR =  "#9aa0a6"  # rojo  - se equivocó
-COLOR_BLANK = "#9aa0a6"
-COLOR_INVALID = "#f39c12"   # naranja - item inválido (descripción basura, revisar)
-"""
 # ------------------------------------------------------------------------------
 # DETECCIÓN DE ITEMS INVÁLIDOS
 # ------------------------------------------------------------------------------
@@ -474,7 +467,7 @@ PALABRAS_SOLO_EXACTAS = [
     "can",          # candy, cancel
     "chip",         # chipotle
     "nut",          # nutmeg, peanut
-    "ham","hen"          # hamster
+    "ham", "hen",        # hamster
     "rib",          # ribbon
     "pie",          # piece
     "go",           # mango, gourmet
