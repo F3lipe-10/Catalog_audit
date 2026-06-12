@@ -305,15 +305,7 @@ EXCEPCIONES_POR_SKU_SUPPLIER = [
 # Fuerza "E" en divisiones concretas para items de un supplier cuya descripción
 # contenga todas las palabras en "palabras_todas" y ninguna en "palabras_excluidas".
 # Se aplica DESPUÉS de EXCEPCIONES_POR_CATEGORIA_SUPPLIER.
-EXCEPCIONES_POR_KEYWORDS_SUPPLIER = [
-    {
-        "nombre": "Black River - Beef Local (no ground): expuesto en todas menos SCHOOL SERVICES",
-        "supplier_id": "1000259",
-        "palabras_todas": ["beef", "local"],
-        "palabras_excluidas": ["ground"],
-        "divisiones_expuestas": [d for d in DIVISIONES if d != "SCHOOL SERVICES"],
-    },
-]
+EXCEPCIONES_POR_KEYWORDS_SUPPLIER = []
 
 
 # ------------------------------------------------------------------------------
@@ -323,6 +315,12 @@ EXCEPCIONES_POR_KEYWORDS_SUPPLIER = [
 # caigan en una categoría determinada. Independiente de EXCEPCIONES_POR_SKU_SUPPLIER.
 # divisiones_expuestas: lista de divisiones canónicas, o None para todas.
 EXCEPCIONES_POR_CATEGORIA_SUPPLIER = [
+    {
+        "nombre": "Black River - Local Meat expuesto en todas menos SCHOOL SERVICES",
+        "supplier_id": "1000259",
+        "categorias": ["Local Meat"],
+        "divisiones_expuestas": [d for d in DIVISIONES if d != "SCHOOL SERVICES"],
+    },
     {
         "nombre": "Native Maine - Local Meat expuesto en todas menos SCHOOL SERVICES",
         "supplier_id": "1000641",
