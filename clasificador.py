@@ -548,8 +548,8 @@ def calcular_re_por_division(categoria: str, sku, skus_bot: set, item: str = "",
                 if div not in divisiones_normales:
                     resultado[div] = "R"
             # Si la regla fuerza exposición sin BOT, las divisiones_normales
-            # siempre quedan en "E" independientemente de Initial Catalog / BOT.
-            if regla.get("forzar_expuesto_en_normales"):
+            # quedan en "E" SOLO para Initial Catalog (no para Banned, Non-contracted, etc.)
+            if regla.get("forzar_expuesto_en_normales") and categoria == config.CAT_INITIAL_CATALOG:
                 for div in divisiones_normales:
                     if div in resultado:
                         resultado[div] = "E"
