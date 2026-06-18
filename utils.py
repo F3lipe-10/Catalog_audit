@@ -337,6 +337,17 @@ def procesar_catalogo(
         for sku, sup in zip(skus_lista, _cat_sups)
     ]
 
+    # Mapa: supplier_id_norm -> set(divisiones_normales) para suppliers que
+    # bypassean la lógica BOT (tienen forzar_expuesto_en_normales=True).
+    _bypass_bot: dict = {}
+    for _r in getattr(config, "REGLAS_ESPECIFICAS_POR_SUPPLIER", []):
+        if not _r.get("forzar_expuesto_en_normales"):
+            continue
+        _divs_norm = set(_r.get("divisiones_normales", []))
+        for _sid in _r.get("supplier_ids", []):
+            _bypass_bot[_normalizar_id(_sid)] = _divs_norm
+    supplier_ids_lista = df[config.COL_SUPPLIER_ID].apply(_normalizar_id).tolist()
+
     # Mostrar info de caché
     items_unicos = len(cache_clasificacion)
     if items_unicos < total_filas:
@@ -382,6 +393,11 @@ def procesar_catalogo(
             previo_list = previo.tolist()
             for i in range(len(estado)):
                 if not es_ic_list[i] or estado[i] in ("blank", "invalid"):
+                    continue
+                # Supplier con forzar_expuesto_en_normales: la regla ya fijó R/E
+                # sin BOT; no sobreescribir el estado con lógica BOT.
+                sup_id_i = supplier_ids_lista[i]
+                if sup_id_i in _bypass_bot and div not in _bypass_bot[sup_id_i]:
                     continue
                 if en_bot_arr[i] and previo_list[i] == "E":
                     estado[i] = "ok"
