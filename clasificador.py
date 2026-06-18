@@ -174,21 +174,12 @@ def _contiene_palabra_estricta(texto: str, palabra: str) -> bool:
         sufijo = re.escape(palabra_low[1:])
         return bool(re.search(sufijo + r"(?![a-z])", texto_low))
 
-    # Solo búsqueda como palabra completa con plural opcional
-    patron = r"(?<![a-z])" + re.escape(palabra_low) + r"(?:es|s)?(?![a-z])"
-    if re.search(patron, texto_low):
+    # Usa los compiladores cacheados (igual que _contiene_palabra, sin substring)
+    if _compilar_patron(palabra_low).search(texto_low):
         return True
-
-    if palabra_low.endswith("es") and len(palabra_low) > 4:
-        sin_es = palabra_low[:-2]
-        patron_sin_es = r"(?<![a-z])" + re.escape(sin_es) + r"(?:es|s)?(?![a-z])"
-        if re.search(patron_sin_es, texto_low):
-            return True
-    elif palabra_low.endswith("s") and len(palabra_low) > 3:
-        sin_s = palabra_low[:-1]
-        patron_sin_s = r"(?<![a-z])" + re.escape(sin_s) + r"(?:es|s)?(?![a-z])"
-        if re.search(patron_sin_s, texto_low):
-            return True
+    patron_sing = _compilar_patron_singular(palabra_low)
+    if patron_sing is not None and patron_sing.search(texto_low):
+        return True
 
     return False
 
@@ -212,6 +203,19 @@ def _es_excepcion(texto: str) -> bool:
         "no_clasificar_si_contiene", []
     )
     return _contiene_alguna(texto, excepciones)
+
+
+def _es_formato_con_produce_fresco(item: str) -> bool:
+    """
+    True si el item contiene un keyword de formato/empaque (bag, tray, etc.) Y
+    también un keyword de produce fresco. En ese caso, no debe ser Non-Contracted.
+    """
+    config_exc = CATEGORIAS.get("_excepciones_formato_produce", {})
+    formatos = config_exc.get("formatos", [])
+    produce = config_exc.get("produce_fresco", [])
+    if not formatos or not produce:
+        return False
+    return _contiene_alguna(item, formatos) and _contiene_alguna(item, produce)
 
 
 # ------------------------------------------------------------------------------
@@ -251,6 +255,10 @@ def es_non_contracted(item: str) -> bool:
 
     # Para todas las demás subcategorías, las excepciones SÍ aplican
     if _es_excepcion(item):
+        return False
+
+    # Si es formato de empaque (bag, tray) + produce fresco → no es non-contracted
+    if _es_formato_con_produce_fresco(item):
         return False
 
     for subcat, palabras in CATEGORIAS["non_contracted"].items():
@@ -539,6 +547,12 @@ def calcular_re_por_division(categoria: str, sku, skus_bot: set, item: str = "",
             for div in config.DIVISIONES:
                 if div not in divisiones_normales:
                     resultado[div] = "R"
+            # Si la regla fuerza exposición sin BOT, las divisiones_normales
+            # siempre quedan en "E" independientemente de Initial Catalog / BOT.
+            if regla.get("forzar_expuesto_en_normales"):
+                for div in divisiones_normales:
+                    if div in resultado:
+                        resultado[div] = "E"
 
     # ---- Aplicar EXCEPCIONES POR SKU + SUPPLIER (override más específico, último) ----
     if sid_norm and categoria != config.CAT_REVISAR:

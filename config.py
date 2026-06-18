@@ -260,9 +260,11 @@ REGLAS_ESPECIFICAS_POR_DIVISION = [
 # están en "divisiones_normales".
 REGLAS_ESPECIFICAS_POR_SUPPLIER = [
     {
-        "nombre": "Daylight foods: solo School Services con criterios normales",
+        "nombre": "Daylight foods: solo School Services expuesto, sin BOT",
         "supplier_ids": ["1118971"],
         "divisiones_normales": ["SCHOOL SERVICES"],
+        # True = no pasa por BOT; School Services siempre E, las demás siempre R
+        "forzar_expuesto_en_normales": True,
     },
     # Plantilla para agregar más reglas por supplier en el futuro:
     # {
