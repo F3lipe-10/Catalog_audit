@@ -169,7 +169,7 @@ def cargar_asignaciones_db() -> list[dict]:
     try:
         inicializar_tablas()
         df = conn.query(
-            "SELECT supplier_id, supplier_name, assigned_to, optimized FROM asignaciones",
+            "SELECT supplier_id, supplier_name, assigned_to, COALESCE(optimized, TRUE) AS optimized FROM asignaciones",
             ttl=0,
         )
         return df.to_dict("records")
