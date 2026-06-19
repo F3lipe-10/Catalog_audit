@@ -67,13 +67,21 @@ def leer_excel(archivo_bytes: bytes, nombre: str = "archivo", skip_rows: int = 0
         return pd.DataFrame()
 
 
+def _normalizar_optimized(valor) -> bool:
+    """Convierte el valor de la columna Optimized a booleano."""
+    if isinstance(valor, bool):
+        return valor
+    return str(valor).strip().upper() in ("TRUE", "1", "YES", "SI", "SÍ")
+
+
 def cargar_asignaciones(ruta: str = None) -> pd.DataFrame:
     """
     Carga las asignaciones (distribuidor -> persona) desde la BD (Supabase).
     Si la BD falla o está vacía, intenta el Excel local como fallback.
+    Incluye la columna Optimized si existe (False por defecto si no está).
     """
     import db
-    cols_esperadas = [
+    cols_requeridas = [
         config.COL_ASSIGN_SUPPLIER_ID,
         config.COL_ASSIGN_SUPPLIER,
         config.COL_ASSIGN_PERSON,
@@ -86,27 +94,36 @@ def cargar_asignaciones(ruta: str = None) -> pd.DataFrame:
             "supplier_id":   config.COL_ASSIGN_SUPPLIER_ID,
             "supplier_name": config.COL_ASSIGN_SUPPLIER,
             "assigned_to":   config.COL_ASSIGN_PERSON,
+            "optimized":     config.COL_ASSIGN_OPTIMIZED,
         })
-        return df[cols_esperadas]
+        if config.COL_ASSIGN_OPTIMIZED not in df.columns:
+            df[config.COL_ASSIGN_OPTIMIZED] = False
+        else:
+            df[config.COL_ASSIGN_OPTIMIZED] = df[config.COL_ASSIGN_OPTIMIZED].apply(_normalizar_optimized)
+        return df[cols_requeridas + [config.COL_ASSIGN_OPTIMIZED]]
 
     # Fallback: archivo Excel local
     ruta = ruta or config.RUTA_ASIGNACIONES
     try:
         df = pd.read_excel(ruta)
-        faltantes = [c for c in cols_esperadas if c not in df.columns]
+        faltantes = [c for c in cols_requeridas if c not in df.columns]
         if faltantes:
             st.warning(
                 f"⚠️ El archivo de asignaciones no tiene estas columnas: "
                 f"{', '.join(faltantes)}. Se usará vacío."
             )
-            return pd.DataFrame(columns=cols_esperadas)
-        return df
+            return pd.DataFrame(columns=cols_requeridas + [config.COL_ASSIGN_OPTIMIZED])
+        if config.COL_ASSIGN_OPTIMIZED not in df.columns:
+            df[config.COL_ASSIGN_OPTIMIZED] = False
+        else:
+            df[config.COL_ASSIGN_OPTIMIZED] = df[config.COL_ASSIGN_OPTIMIZED].apply(_normalizar_optimized)
+        return df[cols_requeridas + [config.COL_ASSIGN_OPTIMIZED]]
     except FileNotFoundError:
         st.warning("⚠️ No hay asignaciones en la BD ni archivo local.")
-        return pd.DataFrame(columns=cols_esperadas)
+        return pd.DataFrame(columns=cols_requeridas + [config.COL_ASSIGN_OPTIMIZED])
     except Exception as e:
         st.error(f"❌ Error al leer asignaciones: {e}")
-        return pd.DataFrame(columns=cols_esperadas)
+        return pd.DataFrame(columns=cols_requeridas + [config.COL_ASSIGN_OPTIMIZED])
 
 
 def _normalizar_columnas_catalogo(df: pd.DataFrame) -> pd.DataFrame:
@@ -230,6 +247,18 @@ def procesar_catalogo(
     else:
         skus_bot_char = set()
 
+    # --- Set de supplier_ids que tienen Optimized=True ---
+    # Solo estos pasan por el proceso BOT original; los demás reciben E en todas las divisiones.
+    if not df_asignaciones.empty and config.COL_ASSIGN_OPTIMIZED in df_asignaciones.columns:
+        _opt_mask = df_asignaciones[config.COL_ASSIGN_OPTIMIZED].astype(bool)
+        _sids_optimized = set(
+            df_asignaciones.loc[_opt_mask, config.COL_ASSIGN_SUPPLIER_ID].apply(_normalizar_id)
+        )
+    else:
+        # Sin columna Optimized: comportamiento legacy, todos pasan por BOT
+        _sids_optimized = set(df_asignaciones[config.COL_ASSIGN_SUPPLIER_ID].apply(_normalizar_id)) \
+            if not df_asignaciones.empty else set()
+
     # --- Pre-detectar items con "Local" para llamar a la IA en lote ---
     items = df[config.COL_ITEM].fillna("").astype(str).tolist()
     items_local = [it for it in items if clasificador.es_local(it)
@@ -295,8 +324,10 @@ def procesar_catalogo(
 
         re_dict = cache_re_por_cat.get(clave_re)
         if re_dict is None:
+            es_optimizado = sid_norm in _sids_optimized
             re_dict = clasificador.calcular_re_por_division(
-                cat, sku_norm, skus_bot, item=item, supplier_id=sid_norm
+                cat, sku_norm, skus_bot, item=item, supplier_id=sid_norm,
+                es_optimizado=es_optimizado
             )
             cache_re_por_cat[clave_re] = re_dict
 
@@ -394,9 +425,13 @@ def procesar_catalogo(
             for i in range(len(estado)):
                 if not es_ic_list[i] or estado[i] in ("blank", "invalid"):
                     continue
+                sup_id_i = supplier_ids_lista[i]
+                # Supplier no OPTIMIZED: calculado ya es "E" para todas las divisiones;
+                # el estado "error"/"ok" ya es correcto (rojo si puso "R"). No naranja.
+                if sup_id_i not in _sids_optimized:
+                    continue
                 # Supplier con forzar_expuesto_en_normales: la regla ya fijó R/E
                 # sin BOT; no sobreescribir el estado con lógica BOT.
-                sup_id_i = supplier_ids_lista[i]
                 if sup_id_i in _bypass_bot and div not in _bypass_bot[sup_id_i]:
                     continue
                 if en_bot_arr[i] and previo_list[i] == "E":

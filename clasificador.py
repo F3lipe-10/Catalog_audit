@@ -446,12 +446,12 @@ def clasificar_categoria(item: str, es_carne_func=None, supplier_id=None) -> str
 # Determina R/E por división según la categoría y el archivo BOT
 # ------------------------------------------------------------------------------
 def calcular_re_por_division(categoria: str, sku, skus_bot: set, item: str = "",
-                              supplier_id=None) -> dict:
+                              supplier_id=None, es_optimizado: bool = True) -> dict:
     """
     Devuelve un diccionario {division: 'R' o 'E'} para todas las divisiones,
     basándose en:
       1. La categoría del producto (Banned, Local, Non-contracted, PPI, etc.)
-      2. Si el SKU está en el archivo BOT (para Initial Catalog)
+      2. Si el SKU está en el archivo BOT (para Initial Catalog, solo suppliers OPTIMIZED)
       3. Las REGLAS_ESPECÍFICAS_POR_DIVISION que coincidan con el item
          (overrides finales)
       4. Las REGLAS_ESPECÍFICAS_POR_SUPPLIER si el supplier_id coincide
@@ -463,6 +463,8 @@ def calcular_re_por_division(categoria: str, sku, skus_bot: set, item: str = "",
         skus_bot: conjunto (set) de SKUs presentes en el archivo BOT
         item: nombre del producto, para evaluar las reglas específicas
         supplier_id: ID del supplier, para evaluar reglas por supplier
+        es_optimizado: si es False y la categoría es Initial Catalog, todas las
+                       divisiones reciben "E" sin consultar el BOT
     """
     resultado = {}
 
@@ -497,13 +499,18 @@ def calcular_re_por_division(categoria: str, sku, skus_bot: set, item: str = "",
             resultado[div] = valor
     else:
         # ---- Initial Catalog ----
-        for div in config.DIVISIONES_AUTO_EXPUESTAS:
-            resultado[div] = "E"
+        if not es_optimizado:
+            # Supplier no OPTIMIZED: E en todas las divisiones, sin consultar BOT
+            for div in config.DIVISIONES:
+                resultado[div] = "E"
+        else:
+            for div in config.DIVISIONES_AUTO_EXPUESTAS:
+                resultado[div] = "E"
 
-        sku_str = _normalizar_supplier_id(sku)
-        en_bot = sku_str in skus_bot
-        for div in config.DIVISIONES_REQUIEREN_BOT:
-            resultado[div] = "E" if en_bot else "R"
+            sku_str = _normalizar_supplier_id(sku)
+            en_bot = sku_str in skus_bot
+            for div in config.DIVISIONES_REQUIEREN_BOT:
+                resultado[div] = "E" if en_bot else "R"
 
     # ---- Aplicar REGLAS ESPECÍFICAS POR DIVISIÓN (override final) ----
     # Usamos búsqueda ESTRICTA (sin palabras pegadas) para evitar falsos

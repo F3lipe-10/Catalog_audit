@@ -178,7 +178,7 @@ SUPPLIERS_DAIRY_GNG = {
 PALABRAS_DAIRY = [
     "milk", "half & half", "half and half", "half half", "heavy cream","milk gallon","milk whole gallon",
     "milk organic","organic milk", "milkorganic", "organicmilk", "milk oat org","milk org","org milk",
-    "milk soy org", "milk soy organic"
+    "milk soy org", "milk soy organic", "cottage cheese", "sour cream", "yogurt"
 ]
 
 PALABRAS_GRAB_AND_GO = [
@@ -364,6 +364,7 @@ SKIP_ROWS_EXP       = 0
 COL_ASSIGN_SUPPLIER_ID = "Supplier ID"     # ID del distribuidor (para hacer match)
 COL_ASSIGN_SUPPLIER    = "Supplier Name"   # Nombre del distribuidor (para mostrar)
 COL_ASSIGN_PERSON      = "Assigned to"     # Persona encargada
+COL_ASSIGN_OPTIMIZED   = "Optimized"       # TRUE = pasa por proceso BOT; FALSE/vacío = E en todas las divisiones
 RUTA_ASIGNACIONES      = "data/asignaciones.xlsx"
 
 # ------------------------------------------------------------------------------
