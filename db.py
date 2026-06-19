@@ -56,8 +56,13 @@ def inicializar_tablas() -> None:
             CREATE TABLE IF NOT EXISTS asignaciones (
                 supplier_id    TEXT PRIMARY KEY,
                 supplier_name  TEXT,
-                assigned_to    TEXT
+                assigned_to    TEXT,
+                optimized      BOOLEAN DEFAULT TRUE
             )
+        """))
+        s.execute(text("""
+            ALTER TABLE asignaciones
+            ADD COLUMN IF NOT EXISTS optimized BOOLEAN DEFAULT TRUE
         """))
         s.commit()
 
@@ -164,7 +169,7 @@ def cargar_asignaciones_db() -> list[dict]:
     try:
         inicializar_tablas()
         df = conn.query(
-            "SELECT supplier_id, supplier_name, assigned_to FROM asignaciones",
+            "SELECT supplier_id, supplier_name, assigned_to, optimized FROM asignaciones",
             ttl=0,
         )
         return df.to_dict("records")
@@ -185,8 +190,8 @@ def guardar_asignaciones_db(filas: list[dict]) -> bool:
             if filas:
                 s.execute(
                     text("""
-                        INSERT INTO asignaciones (supplier_id, supplier_name, assigned_to)
-                        VALUES (:supplier_id, :supplier_name, :assigned_to)
+                        INSERT INTO asignaciones (supplier_id, supplier_name, assigned_to, optimized)
+                        VALUES (:supplier_id, :supplier_name, :assigned_to, :optimized)
                     """),
                     filas,
                 )
