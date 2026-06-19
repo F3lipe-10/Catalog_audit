@@ -68,17 +68,28 @@ def leer_excel(archivo_bytes: bytes, nombre: str = "archivo", skip_rows: int = 0
 
 
 def _normalizar_optimized(valor) -> bool:
-    """Convierte el valor de la columna Optimized a booleano."""
+    """Blank/None/NaN = True (legacy: todos pasan por BOT). Solo FALSE/0/NO explícito = no-OPTIMIZED."""
+    if valor is None:
+        return True
     if isinstance(valor, bool):
         return valor
-    return str(valor).strip().upper() in ("TRUE", "1", "YES", "SI", "SÍ")
+    try:
+        if pd.isna(valor):
+            return True
+    except Exception:
+        pass
+    s = str(valor).strip().upper()
+    if not s or s in ("NAN", "NONE", "NAT"):
+        return True
+    return s in ("TRUE", "1", "YES", "SI", "SÍ")
 
 
 def cargar_asignaciones(ruta: str = None) -> pd.DataFrame:
     """
     Carga las asignaciones (distribuidor -> persona) desde la BD (Supabase).
     Si la BD falla o está vacía, intenta el Excel local como fallback.
-    Incluye la columna Optimized si existe (False por defecto si no está).
+    Incluye la columna Optimized si existe (True por defecto si no está — todos
+    pasan por BOT, comportamiento legacy).
     """
     import db
     cols_requeridas = [
@@ -97,7 +108,7 @@ def cargar_asignaciones(ruta: str = None) -> pd.DataFrame:
             "optimized":     config.COL_ASSIGN_OPTIMIZED,
         })
         if config.COL_ASSIGN_OPTIMIZED not in df.columns:
-            df[config.COL_ASSIGN_OPTIMIZED] = False
+            df[config.COL_ASSIGN_OPTIMIZED] = True
         else:
             df[config.COL_ASSIGN_OPTIMIZED] = df[config.COL_ASSIGN_OPTIMIZED].apply(_normalizar_optimized)
         return df[cols_requeridas + [config.COL_ASSIGN_OPTIMIZED]]
@@ -114,7 +125,7 @@ def cargar_asignaciones(ruta: str = None) -> pd.DataFrame:
             )
             return pd.DataFrame(columns=cols_requeridas + [config.COL_ASSIGN_OPTIMIZED])
         if config.COL_ASSIGN_OPTIMIZED not in df.columns:
-            df[config.COL_ASSIGN_OPTIMIZED] = False
+            df[config.COL_ASSIGN_OPTIMIZED] = True
         else:
             df[config.COL_ASSIGN_OPTIMIZED] = df[config.COL_ASSIGN_OPTIMIZED].apply(_normalizar_optimized)
         return df[cols_requeridas + [config.COL_ASSIGN_OPTIMIZED]]

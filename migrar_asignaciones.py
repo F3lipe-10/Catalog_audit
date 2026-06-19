@@ -40,12 +40,17 @@ def main():
         print(f"ERROR: no se encontró '{RUTA_EXCEL}'")
         sys.exit(1)
 
-    cols = [config.COL_ASSIGN_SUPPLIER_ID, config.COL_ASSIGN_SUPPLIER, config.COL_ASSIGN_PERSON]
-    faltantes = [c for c in cols if c not in df.columns]
+    cols_requeridas = [config.COL_ASSIGN_SUPPLIER_ID, config.COL_ASSIGN_SUPPLIER, config.COL_ASSIGN_PERSON]
+    faltantes = [c for c in cols_requeridas if c not in df.columns]
     if faltantes:
         print(f"ERROR: faltan columnas en el Excel: {', '.join(faltantes)}")
         sys.exit(1)
 
+    tiene_optimized = config.COL_ASSIGN_OPTIMIZED in df.columns
+    if not tiene_optimized:
+        print(f"AVISO: columna '{config.COL_ASSIGN_OPTIMIZED}' no encontrada — se usará TRUE para todos.")
+
+    cols = cols_requeridas + ([config.COL_ASSIGN_OPTIMIZED] if tiene_optimized else [])
     df = df[cols].copy()
     df[config.COL_ASSIGN_SUPPLIER_ID] = (
         df[config.COL_ASSIGN_SUPPLIER_ID]
@@ -56,11 +61,33 @@ def main():
     df = df.dropna(subset=[config.COL_ASSIGN_SUPPLIER_ID])
     df = df[df[config.COL_ASSIGN_SUPPLIER_ID] != ""]
 
+    duplicados = df[df.duplicated(subset=[config.COL_ASSIGN_SUPPLIER_ID], keep=False)]
+    if not duplicados.empty:
+        ids_dup = duplicados[config.COL_ASSIGN_SUPPLIER_ID].unique().tolist()
+        print(f"AVISO: {len(ids_dup)} supplier_id(s) duplicados en el Excel — se conserva la primera fila: {ids_dup[:5]}")
+    df = df.drop_duplicates(subset=[config.COL_ASSIGN_SUPPLIER_ID], keep="first")
+
+    def _leer_optimized(val) -> bool:
+        if val is None:
+            return True
+        if isinstance(val, bool):
+            return val
+        try:
+            if pd.isna(val):
+                return True
+        except Exception:
+            pass
+        s = str(val).strip().upper()
+        if not s or s in ("NAN", "NONE", "NAT"):
+            return True
+        return s in ("TRUE", "1", "YES", "SI", "SÍ")
+
     filas = [
         {
             "supplier_id":   row[config.COL_ASSIGN_SUPPLIER_ID],
             "supplier_name": row[config.COL_ASSIGN_SUPPLIER] if pd.notna(row[config.COL_ASSIGN_SUPPLIER]) else "",
             "assigned_to":   row[config.COL_ASSIGN_PERSON] if pd.notna(row[config.COL_ASSIGN_PERSON]) else "",
+            "optimized":     _leer_optimized(row[config.COL_ASSIGN_OPTIMIZED]) if tiene_optimized else True,
         }
         for _, row in df.iterrows()
     ]
