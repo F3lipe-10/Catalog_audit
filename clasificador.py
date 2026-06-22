@@ -595,8 +595,12 @@ def calcular_re_por_division(categoria: str, sku, skus_bot: set, item: str = "",
         for exc in excepciones_kw:
             if _normalizar_supplier_id(exc.get("supplier_id", "")) != sid_norm:
                 continue
+            palabras_grupos = exc.get("palabras_grupos")
             palabras_todas = exc.get("palabras_todas", [])
-            if not all(_contiene_palabra_estricta(item, p) for p in palabras_todas):
+            if palabras_grupos:
+                if not any(all(_contiene_palabra_estricta(item, p) for p in g) for g in palabras_grupos):
+                    continue
+            elif not all(_contiene_palabra_estricta(item, p) for p in palabras_todas):
                 continue
             palabras_excluidas = exc.get("palabras_excluidas", [])
             if any(_contiene_palabra_estricta(item, p) for p in palabras_excluidas):
