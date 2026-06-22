@@ -26,6 +26,56 @@ import ia_carne
 
 
 # ------------------------------------------------------------------------------
+# Helpers
+# ------------------------------------------------------------------------------
+
+def _construir_resumen_por_persona(df: "pd.DataFrame", divisiones: list) -> "pd.DataFrame":
+    """Agrupa df por persona y cuenta ok/error/blank/invalid por división."""
+    filas = []
+    for persona, df_p in df.groupby(config.COL_ASSIGN_PERSON, dropna=False):
+        nombre = persona if pd.notna(persona) and str(persona).strip() else "(Unassigned)"
+        ok  = sum((df_p[f"{div} (estado)"] == "ok").sum()    for div in divisiones)
+        err = sum((df_p[f"{div} (estado)"] == "error").sum() for div in divisiones)
+        blk = sum((df_p[f"{div} (estado)"] == "blank").sum() for div in divisiones)
+        inv = (df_p["Categoria"] == config.CAT_REVISAR).sum()
+        total = ok + err + blk
+        filas.append({
+            "Person":      nombre,
+            "Products":    len(df_p),
+            "Matches 🟢":  ok,
+            "Errors 🔴":   err,
+            "Blanks ⚪":   blk,
+            "Invalid 🟠":  inv,
+            "% Match":     round(ok / total * 100, 1) if total else 0,
+        })
+    return (
+        pd.DataFrame(filas)
+        .sort_values(by=["Errors 🔴", "Blanks ⚪"], ascending=False)
+        .reset_index(drop=True)
+    )
+
+
+def _mostrar_tabla_resumen(df_r: "pd.DataFrame") -> None:
+    """Renderiza la tabla de resumen por persona con barras de progreso."""
+    max_err = max(df_r["Errors 🔴"].max(), 1)
+    max_blk = max(df_r["Blanks ⚪"].max(), 1)
+    max_inv = max(df_r["Invalid 🟠"].max(), 1)
+    st.dataframe(
+        df_r,
+        use_container_width=True,
+        hide_index=True,
+        column_config={
+            "Products":   st.column_config.NumberColumn(format="%d"),
+            "Matches 🟢": st.column_config.NumberColumn(format="%d"),
+            "Errors 🔴":  st.column_config.ProgressColumn(format="%d",   min_value=0, max_value=int(max_err)),
+            "Blanks ⚪":  st.column_config.ProgressColumn(format="%d",   min_value=0, max_value=int(max_blk)),
+            "Invalid 🟠": st.column_config.ProgressColumn(format="%d",   min_value=0, max_value=int(max_inv)),
+            "% Match":    st.column_config.ProgressColumn(format="%.1f%%", min_value=0, max_value=100),
+        },
+    )
+
+
+# ------------------------------------------------------------------------------
 # Configuración de página
 # ------------------------------------------------------------------------------
 st.set_page_config(
@@ -230,59 +280,8 @@ with tab_main:
         "Useful for feedback and training."
     )
 
-    # Construir el resumen: para cada persona contar ok / error / blank en TODAS sus filas
-    filas_resumen = []
-    col_persona = config.COL_ASSIGN_PERSON
-
-    for persona, df_p in df_completo.groupby(col_persona, dropna=False):
-        nombre_persona = persona if pd.notna(persona) and str(persona).strip() else "(Unassigned)"
-        productos_persona = len(df_p)
-        ok_p = sum((df_p[f"{div} (estado)"] == "ok").sum() for div in config.DIVISIONES)
-        err_p = sum((df_p[f"{div} (estado)"] == "error").sum() for div in config.DIVISIONES)
-        blk_p = sum((df_p[f"{div} (estado)"] == "blank").sum() for div in config.DIVISIONES)
-        inv_p = (df_p["Categoria"] == config.CAT_REVISAR).sum()
-        total_p = ok_p + err_p + blk_p
-        porc_ok = (ok_p / total_p * 100) if total_p else 0
-        filas_resumen.append({
-            "Person": nombre_persona,
-            "Products": productos_persona,
-            "Matches 🟢": ok_p,
-            "Errors 🔴": err_p,
-            "Blanks ⚪": blk_p,
-            "Invalid 🟠": inv_p,
-            "% Match": round(porc_ok, 1),
-        })
-
-    df_resumen = pd.DataFrame(filas_resumen).sort_values(
-        by=["Errors 🔴", "Blanks ⚪"], ascending=False
-    ).reset_index(drop=True)
-
-    # Mostrar la tabla con barras de progreso para errores/blanks/inválidos
-    max_err = max(df_resumen["Errors 🔴"].max(), 1)
-    max_blk = max(df_resumen["Blanks ⚪"].max(), 1)
-    max_inv = max(df_resumen["Invalid 🟠"].max(), 1)
-
-    st.dataframe(
-        df_resumen,
-        use_container_width=True,
-        hide_index=True,
-        column_config={
-            "Products": st.column_config.NumberColumn(format="%d"),
-            "Matches 🟢": st.column_config.NumberColumn(format="%d"),
-            "Errors 🔴": st.column_config.ProgressColumn(
-                format="%d", min_value=0, max_value=int(max_err)
-            ),
-            "Blanks ⚪": st.column_config.ProgressColumn(
-                format="%d", min_value=0, max_value=int(max_blk)
-            ),
-            "Invalid 🟠": st.column_config.ProgressColumn(
-                format="%d", min_value=0, max_value=int(max_inv)
-            ),
-            "% Match": st.column_config.ProgressColumn(
-                format="%.1f%%", min_value=0, max_value=100
-            ),
-        },
-    )
+    df_resumen = _construir_resumen_por_persona(df_completo, config.DIVISIONES)
+    _mostrar_tabla_resumen(df_resumen)
 
     # Botón para descargar el resumen como Excel
     if st.session_state.get("buffer_resumen") is None or st.session_state.get("huella_archivos_resumen") != huella_actual:
@@ -497,55 +496,8 @@ with tab_detail:
         if len(df_d) == 0:
             st.warning("No products match the selected filters.")
         else:
-            filas_d = []
-            for persona, df_p in df_d.groupby(config.COL_ASSIGN_PERSON, dropna=False):
-                nombre_p = persona if pd.notna(persona) and str(persona).strip() else "(Unassigned)"
-                productos_p = len(df_p)
-                ok_p = sum((df_p[f"{div} (estado)"] == "ok").sum() for div in divisiones_a_contar)
-                err_p = sum((df_p[f"{div} (estado)"] == "error").sum() for div in divisiones_a_contar)
-                blk_p = sum((df_p[f"{div} (estado)"] == "blank").sum() for div in divisiones_a_contar)
-                inv_p = (df_p["Categoria"] == config.CAT_REVISAR).sum()
-                total_p = ok_p + err_p + blk_p
-                porc_p = (ok_p / total_p * 100) if total_p else 0
-                filas_d.append({
-                    "Person": nombre_p,
-                    "Products": productos_p,
-                    "Matches 🟢": ok_p,
-                    "Errors 🔴": err_p,
-                    "Blanks ⚪": blk_p,
-                    "Invalid 🟠": inv_p,
-                    "% Match": round(porc_p, 1),
-                })
-
-            df_detail = pd.DataFrame(filas_d).sort_values(
-                by=["Errors 🔴", "Blanks ⚪"], ascending=False
-            ).reset_index(drop=True)
-            #🔴
-            max_err_d = max(df_detail["Errors 🔴"].max(), 1)
-            max_blk_d = max(df_detail["Blanks ⚪"].max(), 1)
-            max_inv_d = max(df_detail["Invalid 🟠"].max(), 1)
-
-            st.dataframe(
-                df_detail,
-                use_container_width=True,
-                hide_index=True,
-                column_config={
-                    "Products": st.column_config.NumberColumn(format="%d"),
-                    "Matches 🟢": st.column_config.NumberColumn(format="%d"),
-                    "Errors 🔴": st.column_config.ProgressColumn(
-                        format="%d", min_value=0, max_value=int(max_err_d)
-                    ),
-                    "Blanks ⚪": st.column_config.ProgressColumn(
-                        format="%d", min_value=0, max_value=int(max_blk_d)
-                    ),
-                    "Invalid 🟠": st.column_config.ProgressColumn(
-                        format="%d", min_value=0, max_value=int(max_inv_d)
-                    ),
-                    "% Match": st.column_config.ProgressColumn(
-                        format="%.1f%%", min_value=0, max_value=100
-                    ),
-                },
-            )
+            df_detail = _construir_resumen_por_persona(df_d, divisiones_a_contar)
+            _mostrar_tabla_resumen(df_detail)
 
             # ----- Descarga del resumen filtrado -----
             buffer_d = _io.BytesIO()
