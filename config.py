@@ -178,11 +178,12 @@ SUPPLIERS_DAIRY_GNG = {
 PALABRAS_DAIRY = [
     "milk", "half & half", "half and half", "half half", "heavy cream","milk gallon","milk whole gallon",
     "milk organic","organic milk", "milkorganic", "organicmilk", "milk oat org","milk org","org milk",
-    "milk soy org", "milk soy organic", "cottage cheese", "sour cream", "yogurt"
+    "milk soy org", "milk soy organic",
 ]
 
 PALABRAS_GRAB_AND_GO = [
-    "snack", "gng", "go", "wrap", "sandwich", "sand", "sand*", "sndw", "grab & go", "grab n go", 
+    "snack", "gng", "go", "wrap",
+     "sandwich", "sand", "sand*", "sndw", "grab & go", "grab n go", 
     "grab-and-go","grab 'n go","meal","parfait"," panini ham", "mkw",
     "cesar salad", "caesar salad", "chicken salad", "burrito", "wrap", "saladcaesar",
     "saladcharlies","salad charlies", "snack pack", "snackpack", "snack-pack",
@@ -305,9 +306,18 @@ EXCEPCIONES_POR_SKU_SUPPLIER = [
 # EXCEPCIONES ESPECÍFICAS POR KEYWORDS + SUPPLIER
 # ------------------------------------------------------------------------------
 # Fuerza "E" en divisiones concretas para items de un supplier cuya descripción
-# contenga todas las palabras en "palabras_todas" y ninguna en "palabras_excluidas".
+# contenga todas las palabras en "palabras_todas" (AND) o cualquier grupo en
+# "palabras_grupos" (OR entre grupos, AND dentro de cada grupo), y ninguna en "palabras_excluidas".
 # Se aplica DESPUÉS de EXCEPCIONES_POR_CATEGORIA_SUPPLIER.
-EXCEPCIONES_POR_KEYWORDS_SUPPLIER = []
+EXCEPCIONES_POR_KEYWORDS_SUPPLIER = [
+    {
+        "nombre": "Daylight Foods - Cottage Cheese / Sour Cream: expuesto solo en School Services",
+        "supplier_id": "1118971",
+        "palabras_grupos": [["cottage cheese"], ["sour cream"]],
+        "palabras_excluidas": [],
+        "divisiones_expuestas": ["SCHOOL SERVICES"],
+    },
+]
 
 
 # ------------------------------------------------------------------------------
