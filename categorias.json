@@ -157,7 +157,7 @@
       "salsify", "parsley flat", "milkweed", "bee pollen", "tampico", "tampicochili",
       "harumaki","sprnkl", "granulated garlic","gardencilantro","gardenginger","gardenlemon","fregola",
       "stuffing mix","mix stuffing", "dinner hawaiian","creamy garlic herb","cous cous","almond joy",
-      "baby ruth","tootsie rolls","callets",
+      "baby ruth","tootsie rolls","callets","apples candy", "woodoak",
       "suger powdered","stuffing","stuffingsage", "sorghum","sofrito","snapdragon","smelt lake", "ROLLS-POTATO-HOT-DOG"
     ],
     "grab_n_go_general": [
@@ -212,7 +212,7 @@
   "ppi": {
     "_comentario": "PPI = Process Produce Items. Items procesados que SÍ están permitidos. Si es PPI, se EXPONE en todas las divisiones.",
     "processed": [
-      "diced", "dcd","dixie style colesla","platter",
+      "diced", "dcd","dixie style colesla","platter","vegetable",
       "caps", "shaved", "halves", "dice","peel","quartrd",
       "cut", "chunk", "cubed", "chopped", "chpd","Pomegranate seeds",
       "peeled", "pld", "sleeved", "mix fajita", "fajita","chili flakes",
@@ -224,7 +224,7 @@
       "matchstick", "mtchstx","zucchini coins","italian mix","mix mirepoix",
       "ball", "slivered", "spear", "fajita mix"," fruit cup",
       "wedge", "wdg", "wdge","peppers red strips",
-      "fruit cup", "fruit salad",
+      "fruit cup", "fruit salad","scoops",
       "fajita mix", "fajita vegetable mix",
       "veg mix", "vegetable mix", "vegetable blend", "veg blnd", "blend",
       "stir fry", "veggie blend","lettuce salad mix",
