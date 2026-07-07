@@ -499,7 +499,22 @@ def calcular_re_por_division(categoria: str, sku, skus_bot: set, item: str = "",
             resultado[div] = valor
     else:
         # ---- Initial Catalog ----
-        if not es_optimizado:
+        _flor_excluidas = getattr(config, "PALABRAS_FLOR_EXCLUIDAS", [])
+        _flor_keywords = getattr(config, "PALABRAS_FLOR", [])
+        es_edible_flower = (
+            item
+            and not _contiene_alguna_estricta(item, _flor_excluidas)
+            and _contiene_alguna_estricta(item, _flor_keywords)
+            and _contiene_palabra(item, "edible")
+        )
+
+        if es_edible_flower:
+            # Edible flowers en Initial Catalog no pasan por el BOT: E en todas
+            # las divisiones. SCHOOL SERVICES se fuerza a R más abajo via
+            # REGLAS_ESPECIFICAS_POR_DIVISION.
+            for div in config.DIVISIONES:
+                resultado[div] = "E"
+        elif not es_optimizado:
             # Supplier no OPTIMIZED: E en todas las divisiones, sin consultar BOT
             for div in config.DIVISIONES:
                 resultado[div] = "E"
