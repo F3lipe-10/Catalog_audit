@@ -3,65 +3,65 @@
 
   "banned": [
     "microgreen", "micro green", "gingerorg", "greens micro","SPROUTALFALFA","micros",
-    "sprouts","coconut (wide slice)",  "coconut wide slice",
+    "sprouts","coconut (wide slice)",  "coconut wide slice","petite","shoots","peas shoots",
     "yuca root", "yucca root", "yuca. root","micro*","pre micro","coconut flake", "root yuca","root yuca/cassava",
     "casaba root", "casava root", "cassaba root", "cassava root", "coconut shredded", "coconut flakes", 
     "coconut tender shredded", "COCONUTFINE SHRED UNSWEET", "coriander cress living", "Coriander cress",
-    "affila cress", "upland cress", "micrgreen", "pea tendril","tendril pea"
+    "affila cress", "upland cress", "micrgreen", "pea tendril","tendril pea","lettuce iceberg","pea shoot","petite pea","pea shoots"
   ],
 
   "non_contracted": {
     "preservation": [
       "frozen", "frz", "fz", "iqf", "fry", "fzn",
       "dried", "drd", "dehydrated", "dhyd","diredgold","ESCAROLEORG",
-      "canned", "#10","crystalized", "crystallized",
+      "canned", "#10","crystalized", "crystallized","RST",
       "organic", "org", "*org", "ORGANIC", "Organic", "IQ", "IQF", "peachiqf",
-      "ice", "dry", "sundried", "pitted","smkd", "i.q.f.", "froz","chiveorg","chivesorg",
+      "ice", "dry", "sundried","smkd", "i.q.f.", "froz","chiveorg","chivesorg",
       "emdried","driedpear","bachelor button","baby's breath",
-      "nori", "salted","refried"
+      "nori", "salted","refried","candied","zesty"
     ],
     "processing": [
       "grilled", "roasted", "roast", "rstd", "cooked", "smoked", "mashed","cubeware",
       "prepared", "gratin", "fermented", "stuffed", "baked", "glaze", "arancini",
-      "caramel", "crystallized", "preserve", "marinated", "pickle", "obrien", "o'brien",
-      "pickled", "compound", "compote", "concentrate", "candy organge","crunchpack",
-      "fried", "oil", "evoo", "butter","buttr", "rst", "marinade", "spiced", "hashbrowns", "dressed",
+      "caramel", "preserve", "marinated", "pickle", "obrien", "o'brien","aji mirin","black pepper","Black Pepper","Pepper black",
+      "pickled", "compound", "compote", "concentrate", "candy organge","crunchpack","anise","black garlic","black truffles",
+      "fried", "oil", "evoo", "butter","buttr", "rst", "marinade", "spiced", "hashbrowns", "dressed","cofee",
       "popcorn","popco", "pasta", "noodle","nood", "rice",  "Pre cut american", "SPEARMINTORG/C", "spearmintorg",
-      "fries", "risotto", "smoke", "grill", "ravioli", "fettuccine", "gnocchi","bucatini", "bulgur","bulghur",
+      "fries", "risotto", "smoke", "grill", "ravioli", "fettuccine", "gnocchi","bucatini", "bulgur","bulghur","warrior",
       "bulgar","sour", "kimchi","kimchee","kim chee", "kraut", "chow mein blend", "chowmein blend", "chowmeinblend",
-      "dalchanna","dalmasoor","dalmoong","daltoor","WHIPPING", "hydro","hydrangea",
+      "dalchanna","dalmasoor","dalmoong","daltoor","WHIPPING", "hydro","hydrangea","granular","iron","seaweed",
       "farro", "barley", "bbq sauce", "hush puppy","transglutiminase","hush puppies","hushpuppy","hushpuppies",
-      "friesbeer", "hash", "polenta", "macaroni", "orzo", "penne", "rigatoni", "riccioli",
-      "lard", "oleo solids", "preserved", "popcrn", "stew mix", "onion rings"
+      "friesbeer", "hash", "polenta", "macaroni", "orzo", "penne", "rigatoni", "riccioli","rye berry","ryeberries","rye berries", "berries rye",
+      "lard", "oleo solids", "preserved", "popcrn", "stew mix", "onion rings","black truffle","back summer truffle"
     ],
     "condiments": [
       "extract", "pure", "puree", "pate", "juice", "juicing","pjuice",
       "jam", "marmalade", "cider", "nectar", "salsa", "spread","decaf","cinnamon","cinamon",
       "salt", "sugar", "paprika", "tahini", "tajin", "dress", "street corn bites",
-      "dressing", "spice", "seasoning", "giardiniera", "relish","flavoring",
-      "vinegar", "balsamic", "vinaigrette", "syrup", "hicksyrup", "molasses",
+      "dressing", "spice", "seasoning", "giardiniera", "relish","flavoring","spray",
+      "vinegar", "balsamic", "vinaigrette", "syrup", "hicksyrup", "molasses","steel","tea",
       "mayonnaise", "ketchup", "guacamole", "salted carame", "ancho", "aminos", "annattoseed",
-      "ascorbic acid", "calcium chloride", "sodium citrate","maltodexterin",
-      "champagne", "wine", "dextrose", "espresso", "mayo","curry", "fleur de sel",
+      "ascorbic acid", "calcium chloride", "sodium citrate","maltodexterin","DROPS",
+      "champagne", "wine", "dextrose", "espresso", "mayo","curry", "fleur de sel","waterchestnut","wasabiroot",
       "dip", "dipper", "dipcarmelized", "condiment","cucina","stevia","solenda","spirali",
-      "df/", "ff/", "lavazza", "dressin", "demi glace", "sals", "topping",
-      "yuzuco", "citric acid", "corto", "cisco", "crisco","MSG",
+      "df/", "ff/", "lavazza", "dressin", "demi glace", "sals", "topping","name blanco",
+      "yuzuco", "citric acid", "corto", "cisco", "crisco","MSG","brazilian nuts","yuzu",
       "furikake", "glace de viande", "gravy", "pesto", "mix psto", "dijon", "ponzu", "shoyu",
       "ranch", "rosewater", "lingonberry", "patetruffle", "parsley flakes", "om/",
-      "french's", "bistro", "crystals mini habanero", "puree*"
+      "french's", "bistro", "crystals mini habanero", "puree*","nightshade"
     ],
     "dairy_general": [
       "yogurt", "milk", "buttermilk", "cheese", "chs", "chsz", "belgioioso","noix","prairie breeze",
       "mozzarella", "cheddar", "mozz", "chz", "crema", "jalapeno cheddar", "jalapeno chedd",
-      "cream", "creme", "burrata", "Colston", "American Sharp White","cotija","chablis",
+      "cream", "creme", "burrata", "Colston", "American Sharp White","cotija","chablis","corn dogs",
       "half and half", "half & half", "half half", "brie", "parm", "cheesez","fontina",
       "gelato", "gelatin", "agar agar", "jelly", "parmesan", "ricotta", "feta", "gouda", "provolone", "swiss", 
-      "pecorino", "gruyere", "mascarpone", "camembert", "blue cheese","old farmdal",
+      "pecorino", "gruyere", "mascarpone", "camembert", "blue cheese","old farmdal","madeleines","Mahon Do",
       "goat cheese", "panela", "cottage", "manchego", "halloumi", "ch", "butt", "oatmeal", "oat",
-      "asiago", "burrata", "caciotta", "provolone", "provol","creamer", "chees","creama",
+      "asiago", "burrata", "caciotta", "provolone", "provol","creamer", "chees","creama","monte cristo",
       "stilton","fourme d'ambert","FOURME-D'AMBERT", "cambozola","cambazolla","oatmilk","milkoat",
       "O'BANNON", "o'bannon", "obannon","obanon","wooly wooly", "monteray jack","D'Affinois","pomodorina",
-      "monterey jack","jack monteray ","jack monterey ","american white",
+      "monterey jack","jack monteray ","jack monterey ","american white","colby","Muenster","reggiano",
       "DAIRY RODOLPHE SALTED","fondant","fondan","horchata","delicia","delice","gorgonzola","red rock",
       "demiglace", "demi glace", "demi-glace","edam", "emmantaler","euro","torrone"," creamery",
       "boursin", "fontal", "creama kasa","kennys","kenny's","Trimoline", "fromage", "teays valley",
@@ -74,11 +74,11 @@
     ],
     "proteins": [
       "beef", "meat", "bacon", "duck", "pork", "lamb", "bison", "boar","duckbrst","porkloin","ducktongue",
-      "venison", "veal", "rabbit", "pig","guanciale","crabsticks","loinscenter","portionsstk",
+      "venison", "veal", "rabbit", "pig","guanciale","crabsticks","loinscenter","portionsstk","chicken",
       "mussels", "oyster", "snapper", "anchovies", "prawn", "crab","hoagie","duclikng","ELKB",
       "fish", "lobster", "salmon", "tuna", "trout", "shrimp", "beefbone","dewig","wiener","dewigpork","dewigwiener",
-      "sardines", "scallop", "squid", "tilapia","angusny", "duckbacon","hog","duckpekin","togarashi",
-      "chicken", "chx", "chix", "quail", "turkey", "beefbacon","osm","meatloaf","sandw","wagyueye",
+      "sardines", "scallop", "squid", "tilapia","angusny", "duckbacon","hog","duckpekin","togarashi","Stripey Jack",
+      "chicken", "chx", "chix", "quail", "turkey", "beefbacon","osm","meatloaf","sandw","wagyueye","sausag",
       "sausage", "hot dog", "salami", "salame", "soppressata", "sopressata","ELKMEDALLIONS","charlitos",
       "prosciutto", "ham", "mortadella", "chorizo", "steak", "stk", "sliced speck", "speck sliced", "sole",
       "angus", "wagyu", "prime", "sushi","wagyunbe", "boudinnoir",  "sartorimontamore","LM/","sword","taleggio",
@@ -97,30 +97,30 @@
       "goat", "guanciale","haddock", "halibut", "hens cornish", "canoe", "canoe cut", "mahi mahi","mahimahi",
       "sirloin", "sirloi", "branzino", "branzinobtrfl", "branzinobutrfld","cod","Choice Tri Tip Peeled",
       "branzinofltls", "calamari", "seabass", "codfillet", "blackbass","calabrese","calabria hot long","Angel Hair/Capellini",
-      "flounder", "grouper", "lasagna", "wings", "Strippedbass","bratwurst","Kaiser Rolls", "duckling",
+      "flounder", "grouper", "lasagna", "wings", "Strippedbass","bratwurst","Kaiser Rolls", "duckling","manhattan",
       "ff/brats", "ff/porkchop", "finocchiona", "hotdog", "hors doeuvre", "wholehog", "char arctic","elk",
       "arctic char", "chuck roll","chateaubrian", "chateaubriand","knackwurst", "Rosette De Lyon", "queso",
       "doeuvre", "osm baconpepr", "osm baconthin", "osm baconxtr", "osm hampit", "osm porkbelly","elk medallions",
       "wagyubne", "bellota", "branzini", "franks", "andouille","kingkrab", "halalbeef","ganache","sea urchin","urchin",
       "hors", "kamaboko", "loup de mer", "mackerel", "morcilla", "poussin", "jambon","walleye","wahoo","jack whole",
       "pastrami", "saucisson", "soyrizo", "rockfish", "sockeye", "rolled rump", "rosette","SPANAKOPITA","VL/SPANAKOPITA",
-      "dorade","pollack", "whole fryer","weisswurst","unagi","thyme", "salsiccia", "salumi", "stewbeef",
+      "dorade","pollack", "whole fryer","weisswurst","unagi","thyme", "salsiccia", "salumi", "stewbeef","retail",
       "sturgeon", "squab", "shoulder clod", "shortrib","scup", "sablefish", "redfish", "prociutto","nduja",
-      "loukaniko","nueske","whitefish", "hoof","lambrack","erie crunch","kielbasa","kanpachi","Chic",
-      "escolar","braunschweiger Chub", "boudin noir","caraway",
+      "loukaniko","nueske","whitefish", "hoof","lambrack","erie crunch","kielbasa","kanpachi","Chic","quark original",
+      "escolar","braunschweiger Chub", "boudin noir","caraway","pepperoncini","cobia","perch","fueilletine","quince vf case",
       "inside round denuded","habanero brats","gumbolaya","gumbo", "golden tile","tilefish","geese", "finnan haddie"
     ],
     "formats": [
       "powder", "flavor", "vegan", "american yellow", "berigard2", "berigard1/2","achiote",
       "bolthousegreen", "conway", "tortil", "gelatine", "ball tips", "pub blend", "wreath","gochugaru chile flakes",
       "grits", "grandmas", "gourdes", "eggliquid", "wood applewood chunks","glazed", "spicestar","spicesage","spicedill",
-      "dulce de leche", "blue wheel", "6x14oz", "6x16oz", "cooking","deli cab", "wafer","waffer",
-      "delight","escolarportions","protein", "dasca", "nwd mix","gardenginder","acerola", "sprinkles"
+      "dulce de leche", "blue wheel", "6x14oz", "6x16oz", "cooking","deli cab", "wafer","waffer","olive",
+      "delight","escolarportions","protein", "dasca", "nwd mix","gardenginder","acerola", "sprinkles","coffe"
     ],
     "broths": [
-      "broth", "base", "soup", "stock", " sesame sticks", "lentil", "Choice teres major", "choice tri",
+      "broth", "base", "soup", "stock", " sesame sticks", "lentil", "Choice teres major", "choice tri","nut",
       "sancocho mix", "wood almond","wood","woodapricot","woodcedar","woodcherry","woodfirestarter","woodhickory",
-      "woodmesquite","woodpeach","worcestershire", "wheatgrass", "wheatberries","wheat grass", "wheat","olives"
+      "woodmesquite","woodpeach","worcestershire", "wheatgrass", "wheatberries","wheat grass", "wheat","olives","acai"
     ],
     "baked_goods": [
       "pie", "bagel", "bar", "tart", "pudding", "quiche", "tortilla", "tostada","farfalle",
@@ -136,7 +136,7 @@
       "ghyslain", "pita", "grainquinoa", "cheesele roule", "croccantini","focaccia","focacc","caramel","milkyway","candy bar",
       "cotton candy","snickers","skittles", "m&ms", "m&m's","twix", "kit kat","candy dark","candy good","candy chocolate",
       "gummy","candy sweedish","candy zoo","mike and ike","m and m","candy mint", "mini patties", "gummi",
-      "Candy Mr Goodbar", "casarecce", "pappardelle","linguine", "cereal","flatbread", "candy orange",
+      "Candy Mr Goodbar", "casarecce", "pappardelle","linguine", "cereal","flatbread", "candy orange","challah",
       "candycherry", "crepe", "credit","crisp","cressliving","crepeslarge", "crostini","dumpling","batard",
       "toast","pancake","pancakemix","feuilletine","feuille","kikkoman","macaron", "macaroon","tostones",
       "cinnamon roll", "costanzo", "dolci fruttawhite", "dolci frutta", "dots", "focaccina","mitica","gluten free",
@@ -144,8 +144,8 @@
       "jovyfruit", "jovy fruit", "lady fingers", "licorice", "masa", "morsels","spaghetti","muffinmix","cheeseca",
       "naan", "pan", "papadum", "paratha", "pancke", "pastry","ratatouille", "walnut caramelized","gulab jamun",
       "sfogliatella", "shell fillo", "sopes", "samosa", "oreo", "tortaillas","tottater","tortella","tort","torani",
-      "topsamaranth","tiramisu", "tempeh", "tater tot","strozzapreti","spigarello","millet", "meringue",
-      "tartlet", "fusilli","filo shells","cornbread","cornbi","cone", "lo mein", "golden dipt","tarte"
+      "topsamaranth","tiramisu", "tempeh", "tater tot","strozzapreti","spigarello","millet", "meringue","marble rye","CS/",
+      "tartlet", "fusilli","filo shells","cornbread","cornbi","cone", "lo mein", "golden dipt","tarte","Wheatberries"
     ],
     "produce_attributes": [
       "seeds", "leaves", "husk", "egg whites", "zest", "amchur", "amchur/green", "aamchur","speck",
@@ -154,10 +154,10 @@
       "canton lo mein", "franks in blanket", "hummus", "eggroll", "empanada", "falafel", "cocktail",
       "amaranth puffed", "bolognese", "cacao","cacoa","cajun","chutney","chutneymint", "shingiku","shingikubunched",
       "panini", "sartori","label","farro","grain","saffron", "tam cowgirl","tallow", "smart snak","lollipop",
-      "salsify", "parsley flat", "milkweed", "bee pollen", "tampico", "tampicochili",
+      "salsify", "parsley flat", "milkweed", "bee pollen", "tampico", "tampicochili","chestnuts","chickpeas","dairy",
       "harumaki","sprnkl", "granulated garlic","gardencilantro","gardenginger","gardenlemon","fregola",
-      "stuffing mix","mix stuffing", "dinner hawaiian","creamy garlic herb","cous cous","almond joy",
-      "baby ruth","tootsie rolls","callets","apples candy", "woodoak",
+      "stuffing mix","mix stuffing", "dinner hawaiian","creamy garlic herb","cous cous","almond joy","adobo","adobe",
+      "baby ruth","tootsie rolls","callets","apples candy", "woodoak","battered", "callebaut","cauliflower rice",
       "suger powdered","stuffing","stuffingsage", "sorghum","sofrito","snapdragon","smelt lake", "ROLLS-POTATO-HOT-DOG"
     ],
     "grab_n_go_general": [
@@ -166,11 +166,11 @@
       "clean snax", "poppers", "calbeesnapea"
     ],
     "beverages": [
-      "beverage", "bevg", "drink", "soda", "kombucha", "tea","arbequina", "refresco", "bev-","shot",
-      "lemonade", "water", "chai", "smoothie", "mocha", "cappuccino", "frape", "coconutmilk","liquid",
-      "bolthouse", "bolthouseamazing", "bbq", "yucateca", "green hot", "mustard","mustardwhole", "sriracha",
+      "beverage", "bevg", "drink", "soda", "kombucha", "tea","arbequina", "refresco", "bev-","shot","bellini","nuts brazil","nuts cashew",
+      "lemonade", "water", "chai", "smoothie", "mocha", "cappuccino", "frape", "coconutmilk","liquid","jar","ginger b","graviola",
+      "bolthouse", "bolthouseamazing", "bbq", "yucateca", "green hot", "mustard","mustardwhole", "sriracha","culture pop","hazelnut",
       "sriracha mayo", "mayonnaise","mayonaise", "califia", "frappe", "teryaki", "mojito","matcha","citrus", "sorbet","sorbetto",
-      "island oasis", "jarritos", "juicepom", "mixer margarita", "shake mix","latte","adiondack","tonic","sangria",
+      "island oasis", "jarritos", "juicepom", "mixer margarita", "shake mix","latte","adiondack","tonic","sangria","green bee",
       "verjus du perigord", "brandy", "bourbon", "rum", "tequila", "vodka", "whiskey","whisky","sake", "sidral","applesause",
       "seltzer","seitan", "blood orange", "pellegrino","adiron-jack", "spirit garden","delaware fireball", "brat garlic"
     ],
@@ -178,12 +178,12 @@
       "box","boxchinese", "bag", "plastic bag", "lid", "napkin","napkindin","napkinv", "bonito flakes","bowl",
       "paper", "charcoal", "ZZBag Black Pouch","film", "fiber", "cutlery", "foil", "chopsticks","platter", "mineral-filled",
       "chop stick", "skewer", "towel","cup", "container", "glove", "charge", "straw", "sanitizing",
-      "fee", "soap", "sanitizer", "cleaner", "disinfectant", "dishwasher", "fuel","sogno", "sample",
+      "fee", "soap", "sanitizer", "cleaner", "disinfectant", "dishwasher", "fuel","sogno", "sample","iceberg",
       "bagtote", "bale of straw", "basket bushel", "tissue","belix","basket","miso","winter princess",
       "acetate sheets", "antacid effervescent", "board", "potsticker","dalurad","winter garland", "ramenkinclear",
       "bowls verterra", "bowl veggie value", "bowls serving", "bell","calves", "calvesfeet","ramenkinblack",
       "rack cover","plastic","plstc","plate","tstng","banquet","powerpack","nettle","isomalt","golden velvet",
-      "fork", "forks", "decorative orchid", "detergent", "thermal roll", "thermal paper","screen griddle",
+      "fork", "forks", "decorative orchid", "detergent", "thermal roll", "thermal paper","screen griddle","foil",
       "grease filter", "gum", "cupportion", "cupcold", "swizzle stick","misc","miscellaneous","nappa","sochatti warmer",
       "utensil", "bleach", "bottle", "calendar", "compartment hinge","tray","hinged","cont plas","garland mixed",
       "plaque", "filter", "floral", "wrapper", "dipbulk","bh","calcium","cont -1","contcalm","mask","marzetti slaw",
@@ -195,7 +195,7 @@
       "liner pan", "live honeymoon", "live fountain of youth", "marigold", "mophead","toilet","steelhead",
       "scour pad", "scrubbies", "sterno", "straw", "plates verterra","urnex","Unagi Kabayaki ","tree"," stirrer","stinging",
       "pick bamboo","liner","trash","iota carrageenan", "clear firm","hairnet","guest check","cozola","aspar-tips",
-      "orchid", "spray pan", "pump","frymax", "THIMBLE/ SNOBINE","THIMBLE","SNOBINE", "sleeves","brats",
+      "orchid", "spray pan", "pump","frymax", "THIMBLE/ SNOBINE","THIMBLE","SNOBINE", "sleeves","brats","agertti",
       "towelette","tintern", "test","test1","test2","test3","test4","test5","test6","test7","test8","test9","test10"
     ],
     "canned_items": [
@@ -204,8 +204,9 @@
       "dole retail", "soleggiati", "cornichon", "masala", "hominy white","white hominy"
     ],
     "basket": [
-      "tofu", "sauce", "paste", "tapenade", "boat", "bouquete", "bullgoggi", "bulgogi", "noh mix",
-      "crystal", "tofuextra","tofufirm","tofupremium","tofusilken","tofusoft","tofuspicy","tofusuper","tobiko"
+      "tofu", "sauce", "paste", "tapenade", "boat", "bouquete", "bullgoggi", "bulgogi", "noh mix","dashi","dill",
+      "crystal", "tofuextra","tofufirm","tofupremium","tofusilken","tofusoft","tofuspicy","tofusuper","tobiko","retail",
+      "tofutti","triple deck club","captains","urfa"
     ]
   },
 
@@ -218,7 +219,7 @@
       "peeled", "pld", "sleeved", "mix fajita", "fajita","chili flakes",
       "sliced", "slcd", "slice","slices","segments",
       "shredded", "shred", "sded","Kale Salad Blend",
-      "quartered", "halved", "hlvd", "hvd",
+      "quartered", "halved", "hlvd", "hvd","segments",
       "minced","coin cut", "quarter moon","stir fry",
       "julienned", "julienne", "jlnd","Carrot Spaghetti Cut",
       "matchstick", "mtchstx","zucchini coins","italian mix","mix mirepoix",
@@ -228,9 +229,9 @@
       "fajita mix", "fajita vegetable mix",
       "veg mix", "vegetable mix", "vegetable blend", "veg blnd", "blend",
       "stir fry", "veggie blend","lettuce salad mix",
-      "stick","fruit mixed","fruit mix",
+      "stick","fruit mixed","fruit mix","stix","chop",
       "salad mix", "sep","Potato Fry Cut Fresh",
-      "cole slaw", "coleslaw",
+      "cole slaw", "coleslaw","FC",
       "crescent", "slab","watermelon cube",
       "bias", "half moon", "1/2moon",
       "pitted", "trimmed",
@@ -267,13 +268,13 @@
       "lettuce leaf better burger","zucchini","layer tray","fig brown turkey",
       "vegetable blend mirepoix", "corn husk"," CARBAPE-BAG","premium bag","BRUSSELS SPROUT,TREE",
       "fruits w/ seeds - seedless", "eggplant","squash patty", "3# bag","Brussels Sprouts Leaves",
-      "fruits cups","chard swiss","herbs thyme","302239-TRAY","302238-TRAY",
+      "fruits cups","chard swiss","herbs thyme","302239-TRAY","302238-TRAY","herbs dill",
       "watercress", "cauliflower rice", "potatoes fries","eggplant chinese tray",
       "nectarines","Lettuce Iceberg Liner","lettuce butter","kiwi tray","nectarine white tray",
       "peas sugar snap","radish easter egg", "melon kiss sugar", "beets gold bag",
       "mushrooms lobster", "Mushrooms Oyster","mushrooms king oyster", "Lettuce Iceberg Liner Naked Fresh",
       "lobster mushroom","Orchid Multi Color Edible","cosmic crisp",
-      "grapes cotton candy","Lemon Thyme Fresh","fuji bags","blueberry mini tray",
+      "grapes cotton candy","Lemon Thyme Fresh","fuji bags","blueberry mini tray","nuts almond","macadamia",
       "squash spaghetti","Greens Mustard", "honeydew","no caramel","clipped bag","carrot shakers",
       "carrot spaghetti", "apples honeycrisp", "apples honey crisp","sz bag","del bags"
 
