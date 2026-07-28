@@ -172,7 +172,8 @@ SUPPLIERS_DAIRY_GNG = {
     "1137793": {"dairy": True, "grab_and_go": False},  #charlies produce boise
     "1118198": {"dairy": True, "grab_and_go": False},  #FRESH EDGE - CITY PRODUCE OF FORT WALTON BEACH
     "1000944": {"dairy": True, "grab_and_go": False},  #MIDWEST INSTITUTIONAL
-    "1001244": {"dairy": True, "grab_and_go": True},  #MIDWEST INSTITUTIONAL
+    "1001244": {"dairy": True, "grab_and_go": True},   #MIDWEST INSTITUTIONAL
+    "1146801": {"dairy": False, "grab_and_go": True},   #FRESH EDGE - PIAZZA PRODUCE KY
 }
 
 PALABRAS_DAIRY = [
@@ -180,10 +181,10 @@ PALABRAS_DAIRY = [
     "milk organic","organic milk", "milkorganic", "organicmilk", "milk oat org","milk org","org milk",
     "milk soy org", "milk soy organic",
 ]
-
+#cheese and yogurt
 PALABRAS_GRAB_AND_GO = [
     "snack", "gng", "go", "wrap",
-     "sandwich", "sand", "sand*", "sndw", "grab & go", "grab n go", 
+    "sandwich", "sand", "sand*", "sndw", "grab & go", "grab n go", 
     "grab-and-go","grab 'n go","meal","parfait"," panini ham", "mkw",
     "cesar salad", "caesar salad", "chicken salad", "burrito", "wrap", "saladcaesar",
     "saladcharlies","salad charlies", "snack pack", "snackpack", "snack-pack",
@@ -191,8 +192,8 @@ PALABRAS_GRAB_AND_GO = [
     "CF SUB", "CHI MEIBAO BUN", "CAESAR SALAD","burrito breakfast", "saladcpf","saladgarden",
     "GARDEN SALAD", "Grab N Go", "Gummy", "Hk Salad", "Hk Burrito", "Hk Entrée","saladgreek",
     "Hk breakfast burrito", "fresh salad red bliss potatoe", "cobb salad", "greek salad", 
-    "southwest chkn salad", "cf map salad", "fresh salad","salad","meal","breakfast",
-    "carrot/Broccoli Cup","Carrot/celery Cup", "snak pak"
+    "southwest chkn salad", "cf map salad", "fresh salad","salad","breakfast",
+    "carrot/Broccoli Cup","Carrot/celery Cup", "snak pak","CF MAP"
 ]
 
 # ------------------------------------------------------------------------------
