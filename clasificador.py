@@ -228,6 +228,10 @@ def es_banned(item: str) -> bool:
     # Brussels/Brussel Sprouts no son Banned aunque "sprouts" esté en la lista
     if _contiene_palabra(item, "brussel"):
         return False
+    if _contiene_palabra(item, "banana"):
+        return False
+    if _contiene_palabra(item, "carrot"):
+        return False
     return _contiene_alguna(item, CATEGORIAS["banned"])
 
 
