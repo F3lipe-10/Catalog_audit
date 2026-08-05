@@ -9,9 +9,12 @@ Se configura en .streamlit/secrets.toml:
     url = "postgresql://user:password@host:5432/dbname"
 
 Tablas gestionadas:
-  - cache_carne    : caché persistente de resultados IA (producto → es_carne)
-  - configuracion  : pares clave/valor; usa clave='categorias' para el JSON
-                     de palabras clave.
+  - cache_carne          : caché persistente de resultados IA (producto → es_carne)
+  - configuracion        : pares clave/valor; usa clave='categorias' para el JSON
+                            de palabras clave.
+  - metricas_historicas  : snapshot de métricas (match rate) de cada corrida,
+                            desglosado por división / persona / categoría, para
+                            poder verlo como historial y gráfica de tendencia.
 ================================================================================
 """
 
@@ -63,6 +66,26 @@ def inicializar_tablas() -> None:
         s.execute(text("""
             ALTER TABLE asignaciones
             ADD COLUMN IF NOT EXISTS optimized BOOLEAN DEFAULT TRUE
+        """))
+        s.execute(text("""
+            CREATE TABLE IF NOT EXISTS metricas_historicas (
+                id          SERIAL PRIMARY KEY,
+                run_id      TEXT NOT NULL,
+                etiqueta    TEXT,
+                fecha       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                dimension   TEXT NOT NULL,
+                valor       TEXT NOT NULL,
+                total       INTEGER,
+                matches     INTEGER,
+                errors      INTEGER,
+                blanks      INTEGER,
+                invalid     INTEGER,
+                match_rate  NUMERIC
+            )
+        """))
+        s.execute(text("""
+            CREATE INDEX IF NOT EXISTS idx_metricas_dim_valor
+            ON metricas_historicas (dimension, valor, fecha)
         """))
         s.commit()
 
@@ -199,6 +222,86 @@ def guardar_asignaciones_db(filas: list[dict]) -> bool:
         return True
     except Exception as e:
         print(f"[db] error guardando asignaciones: {e}")
+        return False
+
+
+# ============================================================================
+# HISTORIAL DE MÉTRICAS
+# ============================================================================
+
+def guardar_metricas_historicas(run_id: str, etiqueta: str, filas: list[dict]) -> bool:
+    """
+    Persiste un snapshot de métricas de una corrida. Cada fila debe tener:
+    dimension ('overall'|'division'|'person'|'category'), valor, total,
+    matches, errors, blanks, invalid, match_rate.
+    """
+    if not filas:
+        return True
+    conn = _get_conn()
+    try:
+        inicializar_tablas()
+        with conn.session as s:
+            s.execute(
+                text("""
+                    INSERT INTO metricas_historicas
+                        (run_id, etiqueta, dimension, valor, total, matches, errors, blanks, invalid, match_rate)
+                    VALUES
+                        (:run_id, :etiqueta, :dimension, :valor, :total, :matches, :errors, :blanks, :invalid, :match_rate)
+                """),
+                [
+                    {
+                        "run_id": run_id,
+                        "etiqueta": etiqueta,
+                        "dimension": f["dimension"],
+                        "valor": f["valor"],
+                        "total": int(f["total"]),
+                        "matches": int(f["matches"]),
+                        "errors": int(f["errors"]),
+                        "blanks": int(f["blanks"]),
+                        "invalid": int(f["invalid"]),
+                        "match_rate": float(f["match_rate"]),
+                    }
+                    for f in filas
+                ],
+            )
+            s.commit()
+        return True
+    except Exception as e:
+        print(f"[db] error guardando metricas_historicas: {e}")
+        return False
+
+
+def cargar_metricas_historicas() -> "pd.DataFrame":
+    """Devuelve todo el historial de métricas como DataFrame, ordenado por fecha."""
+    import pandas as pd
+    conn = _get_conn()
+    try:
+        inicializar_tablas()
+        df = conn.query(
+            """
+            SELECT run_id, etiqueta, fecha, dimension, valor,
+                   total, matches, errors, blanks, invalid, match_rate
+            FROM metricas_historicas
+            ORDER BY fecha ASC
+            """,
+            ttl=0,
+        )
+        return df
+    except Exception as e:
+        print(f"[db] error cargando metricas_historicas: {e}")
+        return pd.DataFrame()
+
+
+def borrar_metricas_historicas() -> bool:
+    """Borra todo el historial de métricas."""
+    conn = _get_conn()
+    try:
+        with conn.session as s:
+            s.execute(text("DELETE FROM metricas_historicas"))
+            s.commit()
+        return True
+    except Exception as e:
+        print(f"[db] error borrando metricas_historicas: {e}")
         return False
 
 

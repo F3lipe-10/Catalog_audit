@@ -17,12 +17,15 @@ Para correr localmente:
 
 import streamlit as st
 import pandas as pd
+import altair as alt
 import io as _io
+import hashlib
 
 import config
 import utils
 import auth
 import ia_carne
+import db
 
 
 # ------------------------------------------------------------------------------
@@ -235,6 +238,11 @@ if (
     st.session_state["df_completo"] = df_completo
     st.session_state["huella_archivos"] = huella_actual
     st.session_state["excel_descarga"] = None  # Resetear el excel cacheado
+
+    # Guardar snapshot de métricas en el historial (una vez por corrida nueva)
+    run_id = hashlib.sha256(str(huella_actual).encode()).hexdigest()[:16]
+    filas_metricas = utils.calcular_snapshot_metricas(df_completo, config.DIVISIONES)
+    db.guardar_metricas_historicas(run_id, archivo_catalogo.name, filas_metricas)
 else:
     # Reutilizar el resultado de la sesión (no reprocesar)
     df_completo = st.session_state["df_completo"]
@@ -244,7 +252,9 @@ st.success(f"✅ Processed **{len(df_completo)}** products.")
 # ------------------------------------------------------------------------------
 # Tabs: Main Dashboard / Detailed Analysis
 # ------------------------------------------------------------------------------
-tab_main, tab_detail = st.tabs(["📊 Main Dashboard", "🔍 Detailed Analysis"])
+tab_main, tab_detail, tab_history = st.tabs(
+    ["📊 Main Dashboard", "🔍 Detailed Analysis", "📈 Metrics History"]
+)
 
 with tab_main:
     # ------------------------------------------------------------------------------
@@ -557,12 +567,106 @@ with tab_detail:
                 key="download_detail_one",
             )
 
-# ------------------------------------------------------------------------------
-# Espacio para futuras gráficas
-# ------------------------------------------------------------------------------
-# Aquí podrás agregar luego:
-#   st.header("📊 Gráficas")
-#   - Distribución por categoría
-#   - Discrepancias por distribuidor
-#   - Heatmap de R/E por división
-# ------------------------------------------------------------------------------
+# ==============================================================================
+# METRICS HISTORY TAB
+# ==============================================================================
+with tab_history:
+    st.header("📈 Metrics History")
+    st.caption(
+        "Match rate saved automatically every time a new catalog/BOT/EXP combo is "
+        "processed. Track how the % Match evolves over time by Division, Person or Category."
+    )
+
+    df_hist = db.cargar_metricas_historicas()
+
+    if df_hist.empty:
+        st.info("No history yet. Process a catalog to start building it.")
+    else:
+        df_hist["fecha"] = pd.to_datetime(df_hist["fecha"])
+        df_hist["match_rate"] = df_hist["match_rate"].astype(float)
+
+        h1, h2 = st.columns([1, 2])
+        with h1:
+            dimension_lbl = st.selectbox(
+                "Break down by",
+                ["Overall", "Division", "Person", "Category"],
+                key="hist_dimension",
+            )
+        dimension_map = {
+            "Overall": "overall",
+            "Division": "division",
+            "Person": "person",
+            "Category": "category",
+        }
+        dim = dimension_map[dimension_lbl]
+        df_dim = df_hist[df_hist["dimension"] == dim]
+
+        with h2:
+            valores_disp = sorted(df_dim["valor"].dropna().unique().tolist())
+            if dim == "overall":
+                valores_sel = valores_disp
+            else:
+                valores_sel = st.multiselect(
+                    f"{dimension_lbl}(s) to show",
+                    valores_disp,
+                    default=valores_disp[: min(6, len(valores_disp))],
+                    key="hist_valores",
+                )
+
+        df_plot = df_dim[df_dim["valor"].isin(valores_sel)].sort_values("fecha")
+
+        if df_plot.empty:
+            st.warning("Select at least one value to see the trend.")
+        else:
+            # Orden categórico fijo (alfabético) para que el color de cada serie
+            # no cambie según qué otras series estén seleccionadas.
+            dominio_color = sorted(df_hist[df_hist["dimension"] == dim]["valor"].dropna().unique().tolist())
+
+            chart = (
+                alt.Chart(df_plot)
+                .mark_line(point=alt.OverlayMarkDef(size=60), strokeWidth=2)
+                .encode(
+                    x=alt.X("fecha:T", title="Run date"),
+                    y=alt.Y("match_rate:Q", title="% Match", scale=alt.Scale(domain=[0, 100])),
+                    color=alt.Color(
+                        "valor:N",
+                        title=dimension_lbl,
+                        scale=alt.Scale(domain=dominio_color, scheme="tableau10"),
+                    ),
+                    tooltip=[
+                        alt.Tooltip("valor:N", title=dimension_lbl),
+                        alt.Tooltip("fecha:T", title="Date", format="%Y-%m-%d %H:%M"),
+                        alt.Tooltip("match_rate:Q", title="% Match", format=".1f"),
+                        alt.Tooltip("matches:Q", title="Matches"),
+                        alt.Tooltip("errors:Q", title="Errors"),
+                        alt.Tooltip("blanks:Q", title="Blanks"),
+                        alt.Tooltip("etiqueta:N", title="File"),
+                    ],
+                )
+                .properties(height=400)
+                .interactive()
+            )
+            st.altair_chart(chart, use_container_width=True)
+
+            with st.expander("📋 Show history table"):
+                st.dataframe(
+                    df_plot[["fecha", "etiqueta", "valor", "total", "matches", "errors", "blanks", "invalid", "match_rate"]]
+                    .rename(columns={
+                        "fecha": "Date", "etiqueta": "File", "valor": dimension_lbl,
+                        "total": "Total", "matches": "Matches", "errors": "Errors",
+                        "blanks": "Blanks", "invalid": "Invalid", "match_rate": "% Match",
+                    })
+                    .sort_values("Date", ascending=False),
+                    use_container_width=True,
+                    hide_index=True,
+                    column_config={"% Match": st.column_config.ProgressColumn(format="%.1f%%", min_value=0, max_value=100)},
+                )
+
+        st.divider()
+        with st.expander("⚙️ History options"):
+            st.caption("This permanently deletes every saved metrics snapshot from the database.")
+            if st.button("🗑️ Clear metrics history", use_container_width=True):
+                if db.borrar_metricas_historicas():
+                    st.success("History cleared. Refresh the page to see the change.")
+                else:
+                    st.error("Could not clear the history.")

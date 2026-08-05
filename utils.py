@@ -59,8 +59,17 @@ def leer_excel(archivo_bytes: bytes, nombre: str = "archivo", skip_rows: int = 0
         skip_rows: filas a saltar antes del header (útil cuando el Excel
                    tiene filas de título/logo arriba de los nombres de columna)
     """
+    # Forzar como texto las columnas de SKU conocidas para no perder ceros
+    # a la izquierda (p.ej. "000124" -> 124 si Excel/Pandas lo lee como número).
+    # Las claves que no existan en el archivo se ignoran sin error.
+    dtype_sku = {
+        config.COL_SKU: str,
+        config.COL_BOT_SKU: str,
+        config.COL_EXP_SKU: str,
+        config.COL_BOT_CHAR_SKU: str,
+    }
     try:
-        df = pd.read_excel(io.BytesIO(archivo_bytes), skiprows=skip_rows)
+        df = pd.read_excel(io.BytesIO(archivo_bytes), skiprows=skip_rows, dtype=dtype_sku)
         return df
     except Exception as e:
         st.error(f"❌ Error al leer {nombre}: {e}")
@@ -550,6 +559,72 @@ def construir_tabla_vista(df: pd.DataFrame) -> pd.DataFrame:
     cols = columnas_base + columnas_div
     cols = [c for c in cols if c in df.columns]
     return df[cols].copy()
+
+
+# ------------------------------------------------------------------------------
+# Snapshot de métricas para el historial (BD)
+# ------------------------------------------------------------------------------
+def _fila_metrica(dimension: str, valor: str, ok: int, err: int, blk: int, inv: int) -> dict:
+    total = ok + err + blk + inv
+    validas = ok + err + blk
+    return {
+        "dimension": dimension,
+        "valor": valor,
+        "total": total,
+        "matches": ok,
+        "errors": err,
+        "blanks": blk,
+        "invalid": inv,
+        "match_rate": round(ok / validas * 100, 2) if validas else 0.0,
+    }
+
+
+def calcular_snapshot_metricas(df: pd.DataFrame, divisiones: list) -> list:
+    """
+    Construye el snapshot de métricas de una corrida, desglosado en:
+      - 'overall'  : una sola fila con el total general
+      - 'division' : una fila por división
+      - 'person'   : una fila por persona asignada
+      - 'category' : una fila por categoría (Restricted/Exposed/Revisar)
+    Cada fila es un dict listo para pasar a db.guardar_metricas_historicas.
+    """
+    filas = []
+
+    # ----- overall -----
+    ok  = sum((df[f"{div} (estado)"] == "ok").sum()    for div in divisiones)
+    err = sum((df[f"{div} (estado)"] == "error").sum() for div in divisiones)
+    blk = sum((df[f"{div} (estado)"] == "blank").sum() for div in divisiones)
+    inv = sum((df[f"{div} (estado)"] == "invalid").sum() for div in divisiones)
+    filas.append(_fila_metrica("overall", "ALL", ok, err, blk, inv))
+
+    # ----- por división -----
+    for div in divisiones:
+        estado_col = f"{div} (estado)"
+        ok_d  = (df[estado_col] == "ok").sum()
+        err_d = (df[estado_col] == "error").sum()
+        blk_d = (df[estado_col] == "blank").sum()
+        inv_d = (df[estado_col] == "invalid").sum()
+        filas.append(_fila_metrica("division", div, ok_d, err_d, blk_d, inv_d))
+
+    # ----- por persona -----
+    for persona, df_p in df.groupby(config.COL_ASSIGN_PERSON, dropna=False):
+        nombre = persona if pd.notna(persona) and str(persona).strip() else "(Unassigned)"
+        ok_p  = sum((df_p[f"{div} (estado)"] == "ok").sum()    for div in divisiones)
+        err_p = sum((df_p[f"{div} (estado)"] == "error").sum() for div in divisiones)
+        blk_p = sum((df_p[f"{div} (estado)"] == "blank").sum() for div in divisiones)
+        inv_p = sum((df_p[f"{div} (estado)"] == "invalid").sum() for div in divisiones)
+        filas.append(_fila_metrica("person", str(nombre), ok_p, err_p, blk_p, inv_p))
+
+    # ----- por categoría -----
+    for cat, df_c in df.groupby("Categoria", dropna=False):
+        nombre_cat = cat if pd.notna(cat) and str(cat).strip() else "(Unknown)"
+        ok_c  = sum((df_c[f"{div} (estado)"] == "ok").sum()    for div in divisiones)
+        err_c = sum((df_c[f"{div} (estado)"] == "error").sum() for div in divisiones)
+        blk_c = sum((df_c[f"{div} (estado)"] == "blank").sum() for div in divisiones)
+        inv_c = sum((df_c[f"{div} (estado)"] == "invalid").sum() for div in divisiones)
+        filas.append(_fila_metrica("category", str(nombre_cat), ok_c, err_c, blk_c, inv_c))
+
+    return filas
 
 
 # ------------------------------------------------------------------------------
