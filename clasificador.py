@@ -230,7 +230,9 @@ def es_banned(item: str) -> bool:
         return False
     if _contiene_palabra(item, "banana"):
         return False
-    if _contiene_palabra(item, "carrot"):
+    # Carrot tops legítimos (carrot shakers, carrot spaghetti) son Initial Catalog,
+    # PERO "Micro Greens Carrot Tops" debe ser Banned por el "Micro Greens"
+    if _contiene_palabra(item, "carrot") and not _contiene_palabra(item, "micro"):
         return False
     return _contiene_alguna(item, CATEGORIAS["banned"])
 
@@ -304,6 +306,15 @@ def es_grab_and_go(item: str) -> bool:
     siglas cortas (GO, Hk, GnG) que NO deben buscarse dentro de palabras pegadas.
     """
     palabras = getattr(config, "PALABRAS_GRAB_AND_GO", [])
+    return _contiene_alguna_estricta(item, palabras)
+
+
+def es_bakery(item: str) -> bool:
+    """
+    True si el item contiene una palabra clave de Bakery.
+    Usa búsqueda ESTRICTA (sin palabras pegadas) para evitar falsos positivos.
+    """
+    palabras = getattr(config, "PALABRAS_BAKERY", [])
     return _contiene_alguna_estricta(item, palabras)
 
 
@@ -434,13 +445,24 @@ def clasificar_categoria(item: str, es_carne_func=None, supplier_id=None) -> str
     if es_d or es_gng:
         return config.CAT_NON_CONTRACTED
 
-    # 4. Non-contracted
-    if es_non_contracted(item):
+    # 3.5 Bakery (depende del supplier). Usa el mismo diccionario
+    # SUPPLIERS_DAIRY_GNG (clave "bakery"), ya que reutiliza la lógica de
+    # permisos por supplier. Va antes de Non-contracted porque las palabras
+    # de bakery están en non_contracted.baked_goods y lo atraparían primero.
+    es_b = es_bakery(item)
+    if es_b:
+        if sid in suppliers and suppliers[sid].get("bakery", False):
+            return config.CAT_BAKERY
         return config.CAT_NON_CONTRACTED
 
-    # 5. PPI (incluye procesados)
+    # 4. PPI (incluye procesados) - evaluar ANTES que non-contracted
+    # porque PPI = "procesado permitido" debe ganar sobre restricciones generales
     if es_ppi(item):
         return config.CAT_PPI
+
+    # 5. Non-contracted
+    if es_non_contracted(item):
+        return config.CAT_NON_CONTRACTED
 
     # 6. Por descarte: Initial Catalog. BOT decide la exposición por división.
     return config.CAT_INITIAL_CATALOG
@@ -490,6 +512,8 @@ def calcular_re_por_division(categoria: str, sku, skus_bot: set, item: str = "",
     elif categoria == config.CAT_GRAB_AND_GO:
         valor = "E"
     elif categoria == config.CAT_DAIRY_GNG:
+        valor = "E"
+    elif categoria == config.CAT_BAKERY:
         valor = "E"
     elif categoria == config.CAT_NON_CONTRACTED:
         valor = "R"

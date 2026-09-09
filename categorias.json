@@ -81,7 +81,7 @@
       "beef", "meat", "bacon", "duck", "pork", "lamb", "bison", "boar","duckbrst","porkloin","ducktongue",
       "venison", "veal", "rabbit", "pig","guanciale","crabsticks","loinscenter","portionsstk","chicken",
       "mussels", "oyster", "snapper", "anchovies", "prawn", "crab","hoagie","duclikng","ELKB","Haddock",
-      "fish", "lobster", "salmon", "tuna", "trout", "shrimp", "beefbone","dewig","wiener","dewigpork","dewigwiener",
+      "fish","hamachi", "lobster", "salmon", "tuna", "trout", "shrimp", "beefbone","dewig","wiener","dewigpork","dewigwiener",
       "sardines", "scallop", "squid", "tilapia","angusny", "duckbacon","hog","duckpekin","togarashi","Stripey Jack",
       "chicken", "chx", "chix", "quail", "turkey", "beefbacon","osm","meatloaf","sandw","wagyueye","sausag",
       "sausage", "hot dog", "salami", "salame", "soppressata", "sopressata","ELKMEDALLIONS","charlitos",
@@ -137,7 +137,7 @@
       "pie", "bagel", "bar", "tart", "quiche", "tortilla", "tostada",
       "brownie", "donut", "cobbler", "muffin", "bisquit","anise pizzele","choclate", "naanbulk","naangarlic",
       "flour","flourall", "dough", "batter", "bread", "yeast",
-      "chocolate", "cocoa", "cake", "cookie", "bouchee",
+      "chocolate", "cocoa", "cake", "cookie", "bouchee","farfalle",
       "chip", "pretzel", "croissant", "biscuit", "cracker", "waffle","john's",
       "crispearls", "croutons", "oats", "baguette", "baklava","pullman","pastries",
       "danish", "dessert", "cupcake", "cupcakes", "classic pita", "blinis","beignets", "taco shell", "shell taco",
@@ -176,7 +176,7 @@
     ],
     "beverages": [
       "beverage", "bevg", "drink", "soda", "kombucha", "tea","arbequina", "refresco", "bev-","shot","bellini","nuts brazil","nuts cashew",
-      "lemonade", "water", "chai", "smoothie", "mocha", "cappuccino", "frape", "coconutmilk","liquid","jar","ginger b","graviola",
+      "lemonade", "water", "chai", "smoothie", "mocha", "cappuccino", "frape", "coconutmilk","liquid","jar","ginger b","graviola"," nwd cashew",
       "coffee", "coffee brasil", "cold brew","VINAIGRET","gatorade","kit candy apple",
       "bolthouse", "bolthouseamazing", "bbq", "yucateca", "green hot", "mustard","mustardwhole", "sriracha","culture pop","hazelnut",
       "sriracha mayo", "mayonnaise","mayonaise", "califia", "frappe", "teryaki", "mojito","matcha","citrus", "sorbet","sorbetto",
@@ -187,9 +187,9 @@
     "materials": [
       "box","boxchinese", "bag", "plastic bag", "lid", "napkin","napkindin","napkinv", "bonito flakes","bowl","happy birthday",
       "paper", "charcoal", "ZZBag Black Pouch","film", "fiber", "cutlery", "foil", "chopsticks","platter", "mineral-filled",
-      "chop stick", "skewer", "towel","cup", "container", "glove", "charge", "straw", "sanitizing","CASTELFRANCO",
+      "chop stick", "skewer", "towel","cup", "container", "glove", "charge", "straw", "sanitizing","CASTELFRANCO","agretti",
       "fee", "soap", "sanitizer", "cleaner", "disinfectant", "dishwasher", "fuel","sogno", "sample","hotcup","pwdr",
-      "bagtote", "bale of straw", "basket bushel", "tissue","belix","basket","miso","winter princess","catering",
+      "bagtote", "bale of straw", "basket bushel", "tissue","belix","basket","miso","winter princess","catering","panera",
       "acetate sheets", "antacid effervescent", "board", "potsticker","dalurad","winter garland", "ramenkinclear",
       "bowls verterra", "bowl veggie value", "bowls serving", "bell","calves", "calvesfeet","ramenkinblack",
       "rack cover","plastic","plstc","plate","tstng","banquet","powerpack","nettle","isomalt","golden velvet","dates medjool",
@@ -230,7 +230,7 @@
       "sliced", "slcd", "slice","slices","segments",
       "shredded", "shred", "sded","Kale Salad Blend",
       "quartered", "halved", "hlvd", "hvd","segments",
-      "minced","coin cut", "quarter moon","stir fry","Stir Fry",
+      "minced","coin cut", "quarter moon","stir fry",
       "julienned", "julienne", "jlnd","Carrot Spaghetti Cut",
       "matchstick", "mtchstx","zucchini coins","italian mix","mix mirepoix",
       "ball", "slivered", "spear", "fajita mix"," fruit cup",
@@ -251,19 +251,19 @@
 
   "_excepciones_formato_produce": {
     "_comentario": "Si el item contiene un keyword de 'formatos' Y también un keyword de 'produce_fresco', NO se clasifica como non-contracted (cae a PPI o Initial Catalog).",
-    "formatos": ["bag", "tray", "box", "cup", "filets", "basket bushel","jumbo","caps","retail"],
+    "formatos": ["bag", "tray", "box", "cup", "filets", "basket bushel","jumbo","caps","retail","spaghetti","baking","cooking","baking"],
     "produce_fresco": [
       "apple", "pear", "grape", "berry", "strawberry", "blueberry", "raspberry",
       "blackberry", "cherry", "peach", "plum", "nectarine", "mango", "papaya",
       "pineapple", "melon", "watermelon", "cantaloupe", "honeydew", "kiwi",
       "orange", "lemon", "lime", "grapefruit", "tangerine", "clementine",
       "banana", "avocado", "fig", "date", "apricot", "pomegranate","mushroom",
-      "tomato", "cucumber", "zucchini", "squash", "eggplant","jicama",
+      "tomato", "cucumber", "zucchini", "squash", "eggplant","jicama","pepper",
       "carrot", "celery", "beet", "radish", "turnip", "parsnip","Parsley",
       "broccoli", "cauliflower", "cabbage", "kale", "spinach", "arugula",
       "lettuce", "chard", "bok choy", "fennel", "leek", "onion", "garlic",
-      "corn", "pea", "bean", "asparagus", "artichoke", "brussel",
-      "mushroom", "potato", "yam", "sweet potato","fruit","cilantro"
+      "corn", "pea", "bean", "asparagus", "artichoke", "brussel", "herb",
+      "mushroom", "potato", "yam", "sweet potato","fruit","cilantro","romaine","squash"
     ]
   },
 
@@ -272,21 +272,21 @@
     "no_clasificar_si_contiene": [
       "georgia organic","arugula baby hydro", "banana lady finger","MUSHROOMCRIMINI PETITE",
       "squash butternut","bag Fresh","berry pineberry","lettuce","Mushrooms Shiitake",
-      "tomatoes beefsteak", "bell pepper", "kiwi tray", "pepper bell", "peppers bell",
-      "mushrooms and roots oyster", "cucumbers english", "cucumbers euro","herbs sage",
+      "tomatoes beefsteak", "bell pepper", "kiwi tray", "pepper bell", "peppers bell","lettuce salad mix","fruit salad","fennel anise",
+      "mushrooms and roots oyster", "cucumbers english", "cucumbers euro","herbs sage","PAPAYAGREEN",
       "lettuce green leaf filets","BAG3", "# bags", "napa filet","petite kale","Papaya Hawaiian",
-      "lettuce leaf better burger","zucchini","layer tray","fig brown turkey",
+      "lettuce leaf better burger","zucchini","layer tray","fig brown turkey","Garlic Peeled Christopher Ranch",
       "vegetable blend mirepoix", "corn husk"," CARBAPE-BAG","premium bag","BRUSSELS SPROUT,TREE",
       "fruits w/ seeds - seedless", "eggplant","squash patty","squash patty pan", "3# bag","Brussels Sprouts Leaves",
-      "fruits cups","chard swiss","herbs thyme","302239-TRAY","302238-TRAY","herbs dill",
-      "watercress", "cauliflower rice", "potatoes fries","eggplant chinese tray",
-      "nectarines","Lettuce Iceberg Liner","lettuce butter","kiwi tray","nectarine white tray",
+      "fruits cups","chard swiss","herbs thyme","302239-TRAY","302238-TRAY","herbs dill","stir fry",
+      "watercress", "cauliflower rice", "potatoes fries","eggplant chinese tray","Fennel Anise",
+      "nectarines","Lettuce Iceberg Liner","lettuce butter","kiwi tray","nectarine white tray","Thyme Whole",
       "peas sugar snap","radish easter egg","radishes easter egg", "melon kiss sugar", "beets gold bag",
       "mushrooms lobster", "Mushrooms Oyster","mushrooms king oyster", "Lettuce Iceberg Liner Naked Fresh",
-      "lobster mushroom","Orchid Multi Color Edible","cosmic crisp","PEPPER RED BUSHEL",
+      "lobster mushroom","Orchid Multi Color Edible","cosmic crisp","PEPPER RED BUSHEL","Potatoes Yukon Gold Creamer",
       "grapes cotton candy","Lemon Thyme Fresh","fuji bags","blueberry mini tray","nuts almond","macadamia",
       "squash spaghetti","Greens Mustard", "honeydew","no caramel","clipped bag","carrot shakers","Watermelon Tenderloin",
-      "carrot spaghetti", "apples honeycrisp", "apples honey crisp","sz bag","del bags","Mushrooms  Oyster"
+      "carrot spaghetti", "apples honeycrisp", "apples honey crisp","sz bag","del bags","Mushrooms  Oyster","Mushrooms Wood Ear"
 
     ]
   }
