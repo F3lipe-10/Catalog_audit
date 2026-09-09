@@ -125,16 +125,19 @@ def _validar_reglas_especificas():
                 )
 
 # ------------------------------------------------------------------------------
-# REGLA DAIRY / GRAB AND GO POR SUPPLIER
+# REGLA DAIRY / GRAB AND GO / BAKERY POR SUPPLIER
 # ------------------------------------------------------------------------------
-# Algunos suppliers tienen permitido vender Dairy o Grab and Go.
-# Si el producto contiene palabras de Dairy o Grab and Go Y el supplier está
-# en esta lista con "yes", se EXPONE en todas las divisiones.
-# Si está con "no", se RESTRINGE (Non-contracted).
+# Algunos suppliers tienen permitido vender Dairy, Grab and Go y/o Bakery.
+# Si el producto contiene palabras de Dairy, Grab and Go o Bakery Y el supplier
+# está en esta lista con esa subcategoría en True, se EXPONE en todas las
+# divisiones. Si está en False, se RESTRINGE (Non-contracted).
 # Si el supplier NO está en esta lista pero el item matchea estas palabras,
 # se trata como Non-contracted (R en todas).
+# La clave "bakery" es opcional; si falta se asume False (equivale a no
+# permitir Bakery para ese supplier).
 SUPPLIERS_DAIRY_GNG = {
     "1105082": {"dairy": True, "grab_and_go": True},   # Charlie's Anchorage - Sodexo
+    "1137793": {"dairy": True, "grab_and_go": False},  # Charlie's produce boise
     "1104041": {"dairy": True, "grab_and_go": True},   # Charlie's Portland - Sodexo
     "1111823": {"dairy": True, "grab_and_go": True},   # Charlie's Salt Lake City - Sodexo
     "1000290": {"dairy": True, "grab_and_go": True},   # Charlie's Seattle - Sodexo
@@ -167,33 +170,54 @@ SUPPLIERS_DAIRY_GNG = {
     "1000295": {"dairy": True, "grab_and_go": True},   # FRESHPOINT SOUTH TEXAS LP SAN ANTONIO
     "1000313": {"dairy": True, "grab_and_go": True},   # FRESHPOINT SOUTHERN CALIFORNIA INC
     "1000311": {"dairy": True, "grab_and_go": True},   # FRESHPOINT SAN FRANCISCO INC UPS A66V42
+    "1000307": {"dairy": True, "grab_and_go": False},  # FRESHPOINT WEST COAST FLORIDA - TAMPA
     "1000246": {"dairy": True, "grab_and_go": True},   # PARAGON MONTEVERDE FOOD SERVICE- FRESHPOINT
     "1129301": {"dairy": True, "grab_and_go": False},  # OLE TYME PRODUCE
-    "1137793": {"dairy": True, "grab_and_go": False},  #charlies produce boise
-    "1118198": {"dairy": True, "grab_and_go": False},  #FRESH EDGE - CITY PRODUCE OF FORT WALTON BEACH
-    "1000944": {"dairy": True, "grab_and_go": False},  #MIDWEST INSTITUTIONAL
-    "1001244": {"dairy": True, "grab_and_go": True},   #MIDWEST INSTITUTIONAL
-    "1146801": {"dairy": False, "grab_and_go": True},   #FRESH EDGE - PIAZZA PRODUCE KY
+    "1118198": {"dairy": True, "grab_and_go": False},  # FRESH EDGE - CITY PRODUCE OF FORT WALTON BEACH
+    "1000944": {"dairy": True, "grab_and_go": False},  # MIDWEST INSTITUTIONAL
+    "1001244": {"dairy": True, "grab_and_go": True},   # MIDWEST GRAB AND GO
+    "1146801": {"dairy": False, "grab_and_go": True, "bakery": True},  # FRESH EDGE - PIAZZA PRODUCE KY
+    "1107424": {"dairy": False, "grab_and_go": True},  # What Chef's Want Jacksonville
+    "1107701": {"dairy": True, "grab_and_go": False},  # FORESTWOOD FARM BIRMINGHAM
 }
 
 PALABRAS_DAIRY = [
-    "milk", "half & half", "half and half", "half half", "heavy cream","milk gallon","milk whole gallon",
+    "milk", "half & half", "half and half", "half half", "heavy cream","cream heavy","milk gallon","milk whole gallon","Cream Whipping",
     "milk organic","organic milk", "milkorganic", "organicmilk", "milk oat org","milk org","org milk",
-    "milk soy org", "milk soy organic",
+    "milk soy org", "milk soy organic","Dairy"
 ]
 #cheese and yogurt
 PALABRAS_GRAB_AND_GO = [
     "snack", "gng", "go", "wrap",
     "sandwich", "sand", "sand*", "sndw", "grab & go", "grab n go", 
-    "grab-and-go","grab 'n go","meal","parfait"," panini ham", "mkw",
-    "cesar salad", "caesar salad", "chicken salad", "burrito", "wrap", "saladcaesar",
-    "saladcharlies","salad charlies", "snack pack", "snackpack", "snack-pack",
-    "hk", "side", "CF CASE ENTRÉE", "CF CASE MAP", "CF CASE SALAD", "CF CASE SANDW", 
+    "grab-and-go","grab 'n go","meal","parfait"," panini ham", "mkw", "burr","burrit","burritonb",
+    "cesar salad", "caesar salad", "chicken salad", "burrito", "saladcaesar",
+    "saladcharlies","salad charlies", "snack pack", "snackpack", "snack-pack","Box Lunch",
+    "hk", "CF CASE ENTRÉE", "CF CASE MAP", "CF CASE SALAD", "CF CASE SANDW", "kabob","CF CASE ENTREE",
     "CF SUB", "CHI MEIBAO BUN", "CAESAR SALAD","burrito breakfast", "saladcpf","saladgarden",
-    "GARDEN SALAD", "Grab N Go", "Gummy", "Hk Salad", "Hk Burrito", "Hk Entrée","saladgreek",
-    "Hk breakfast burrito", "fresh salad red bliss potatoe", "cobb salad", "greek salad", 
+    "GARDEN SALAD", "Grab N Go", "Hk Salad", "Hk Burrito", "Hk Entrée","saladgreek",
+    "Hk breakfast burrito", "fresh salad red bliss potatoe", "cobb salad", "greek salad",
     "southwest chkn salad", "cf map salad", "fresh salad","salad","breakfast",
-    "carrot/Broccoli Cup","Carrot/celery Cup", "snak pak","CF MAP"
+    "carrot/Broccoli Cup","Carrot/celery Cup", "snak pak","CF MAP","HKBKF05","HKSNA41"
+]
+
+# Palabras clave de Bakery, tomadas de categorias.json -> non_contracted.baked_goods
+PALABRAS_BAKERY = [
+    "pie","bagel", "tart", "quiche", "tostada",
+    "brownie", "donut", "cobbler", "muffin", "bisquit","anise pizzele", "naanbulk","naangarlic",
+    "dough", "batter", "bread","cake", "cookie", "bouchee", "pretzel", "croissant", 
+    "cracker", "waffle","crispearls", "croutons", "oats", "baguette", "baklava","pullman","pastries",
+    "dessert", "cupcake", "cupcakes", "classic pita", "blinis", "taco shell", "shell taco",
+    "caputo", "brioche", "bruschetta", "bruschettini","fuelletine",
+    "bun", "churros", "ciabatta", "eclair", "vie de france boule",
+    "pita", "croccantini","focaccia","focacc","flatbread","challah",
+    "crepe", "credit","crepeslarge", "crostini","batard",
+    "toast","pancake","pancakemix","feuilletine","feuille","macaron", "macaroon",
+    "cinnamon roll", "costanzo", "focaccina","gluten free",
+    "batard rye","schiacciata","lady fingers", "masa","muffinmix","cheeseca",
+    "naan", "pan", "papadum", "paratha", "pancke", "pastry","gulab jamun",
+    "sfogliatella", "shell fillo", "sopes", "samosa", "oreo", "tortaillas","tort",
+    "tiramisu", "meringue","marble rye", "tartlet","filo shells","cornbread","cornbi","cone","tarte"
 ]
 
 # ------------------------------------------------------------------------------
@@ -505,6 +529,7 @@ CAT_INITIAL_CATALOG   = "Initial Catalog"
 CAT_DAIRY             = "Dairy"
 CAT_GRAB_AND_GO       = "Grab and Go"
 CAT_DAIRY_GNG         = "Dairy/GnG"
+CAT_BAKERY            = "Bakery"
 CAT_REVISAR           = "⚠️ Revisar"   # items con descripción inválida
 
 # Validar que las reglas específicas usen divisiones existentes
