@@ -281,6 +281,13 @@ def es_ppi(item: str) -> bool:
     """
     PPI = Process Produce Items.
     Incluye basket (tofu, sauce, paste) y procesados (diced, sliced, etc.)
+
+    NOTA: las palabras de PPI (sliced, diced, slab, cut, etc.) son genéricas
+    de FORMATO y también aparecen en items que NO son produce (carnes,
+    frozen, organic, dairy, etc.). Por eso en clasificar_categoria() esta
+    función se evalúa DESPUÉS de es_non_contracted(): cualquier item que ya
+    califique como Non-contracted (con sus excepciones ya resueltas) nunca
+    debe caer en PPI, sin importar qué palabra de formato contenga.
     """
     for subcat, palabras in CATEGORIAS["ppi"].items():
         if subcat.startswith("_"):
@@ -455,14 +462,18 @@ def clasificar_categoria(item: str, es_carne_func=None, supplier_id=None) -> str
             return config.CAT_BAKERY
         return config.CAT_NON_CONTRACTED
 
-    # 4. PPI (incluye procesados) - evaluar ANTES que non-contracted
-    # porque PPI = "procesado permitido" debe ganar sobre restricciones generales
-    if es_ppi(item):
-        return config.CAT_PPI
-
-    # 5. Non-contracted
+    # 4. Non-contracted - evaluar ANTES que PPI. Non-contracted (frozen,
+    # organic, dairy, proteins, formats, etc.) es una restricción; PPI es
+    # solo un "permitido" para produce fresco procesado (diced, sliced...).
+    # Un item restringido no debe dejar de estarlo solo porque también
+    # coincide con una palabra genérica de formato de PPI (ej. "Bacon
+    # Sliced" o "Banana Sliced IQF" NO son PPI, son Non-contracted).
     if es_non_contracted(item):
         return config.CAT_NON_CONTRACTED
+
+    # 5. PPI (incluye procesados)
+    if es_ppi(item):
+        return config.CAT_PPI
 
     # 6. Por descarte: Initial Catalog. BOT decide la exposición por división.
     return config.CAT_INITIAL_CATALOG
