@@ -354,7 +354,15 @@ def procesar_catalogo(
         for div in config.DIVISIONES:
             re_por_div[div].append(re_dict[div])
 
-        if cat == config.CAT_NON_CONTRACTED and sku_norm in skus_bot_char:
+        # El BOT Charcuterie expone los non-contracted, EXCEPTO los que vienen
+        # de una regla keyword+supplier (ej. "CFA"), que deben quedar en "R".
+        if (
+            cat == config.CAT_NON_CONTRACTED
+            and sku_norm in skus_bot_char
+            and not clasificador.protegido_de_bot_charcuterie(
+                item, sid_norm, es_carne_func
+            )
+        ):
             for div in config.DIVISIONES_BOT_CHARCUTERIE:
                 re_por_div[div][-1] = "E"
 

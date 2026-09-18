@@ -301,6 +301,58 @@ REGLAS_ESPECIFICAS_POR_SUPPLIER = [
 ]
 
 # ------------------------------------------------------------------------------
+# REGLAS NON-CONTRACTED POR KEYWORD + SUPPLIER
+# ------------------------------------------------------------------------------
+# Fuerza la categoría "Non-Contracted" (y por lo tanto "R" en TODAS las
+# divisiones) cuando la descripción del item contiene alguna de las
+# "palabras_clave" Y el supplier_id está en "supplier_ids".
+#
+# Se evalúa MUY TEMPRANO en clasificar_categoria() (justo después de la
+# validación de descripción), por lo que gana sobre Local, Dairy/GnG, Bakery,
+# PPI e Initial Catalog. Si la persona marcó "E", la celda saldrá en rojo.
+#
+# La búsqueda es ESTRICTA (palabra completa, case-insensitive): "CFA" matchea
+# "CFA CHICKEN BREAST" pero no "CFAX" ni "ORGCFA".
+#
+# Opción "solo_initial_catalog": True -> la regla se evalúa AL FINAL y solo
+# convierte a Non-Contracted los items que hubieran quedado en Initial Catalog;
+# los que ya tienen categoría propia (Banned, Local, Dairy/GnG, Bakery, PPI)
+# la conservan. Sin esta marca, la regla gana sobre todas las demás.
+REGLAS_NON_CONTRACTED_POR_SUPPLIER = [
+    {
+        "nombre": "CFA: non-contracted (R en todas) para suppliers específicos",
+        "palabras_clave": ["CFA"],
+        "supplier_ids": ["1132481", "1000244", "1000302", "1000307", "1108121"],
+    },
+    {
+        "nombre": "Panera: non-contracted (R en todas) para suppliers específicos",
+        "palabras_clave": ["Panera"],
+        # Solo convierte lo que caería en Initial Catalog; no pisa Banned,
+        # Local, Dairy/GnG, Bakery ni PPI.
+        "solo_initial_catalog": True,
+        "supplier_ids": [
+            "1000235",   # KEANY MARYLAND (Keany Produce Co)
+            "1000231",   # LA GRASSO BROTHERS
+            "1000265",   # BALDOR NEW YORK
+            "1000267",   # BALDOR BOSTON
+            "1107701",   # FORESTWOOD FARM BIRMINGHAM
+            "1000312",   # FRESHPOINT OF DENVER
+            "1001570",   # SEGOVIAS DISTRIBUTING INC EL PASO
+            "1123581",   # SEGOVIAS DISTRIBUTING INC ALBUQUERQUE
+            "1000484",   # T CASTRO PRODUCE
+            "1000300",   # FRESHPOINT CONNECTICUT
+            "1000316",   # FRESHPOINT DALLAS
+        ],
+    },
+    # Plantilla para agregar más reglas en el futuro:
+    # {
+    #     "nombre": "Descripción corta",
+    #     "palabras_clave": ["palabra1", "palabra2"],   # OR: al menos una
+    #     "supplier_ids": ["12345"],
+    # },
+]
+
+# ------------------------------------------------------------------------------
 # EXCEPCIONES ESPECÍFICAS POR SKU + SUPPLIER
 # ------------------------------------------------------------------------------
 # Permite forzar "E" en divisiones concretas para SKUs individuales de un
