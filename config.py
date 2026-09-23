@@ -237,6 +237,14 @@ PALABRAS_FLOR_EXCLUIDAS = [
 PALABRAS_FLOR = ["flow", "flower*"]
 
 # ------------------------------------------------------------------------------
+# BEAN SPROUTS (Initial Catalog, solo expuesto en Corporate Services)
+# ------------------------------------------------------------------------------
+# Fuerza R en todas las divisiones menos CORPORATE SERVICES para items de
+# "bean sprouts" / "sprouts bean". El matcher solo agrega plural automático a
+# la ÚLTIMA palabra de la frase, por eso se listan ambos órdenes explícitos.
+PALABRAS_BEAN_SPROUTS = ["bean sprout", "sprout bean", "sprouts bean"]
+
+# ------------------------------------------------------------------------------
 # REGLAS ESPECÍFICAS POR DIVISIÓN (override del cálculo normal)
 # ------------------------------------------------------------------------------
 # Estas reglas se aplican DESPUÉS del cálculo normal de R/E.
@@ -259,6 +267,13 @@ REGLAS_ESPECIFICAS_POR_DIVISION = [
         "palabras_todas": ["edible"],           # todas deben estar presentes (AND)
         "divisiones_restringidas": ["SCHOOL SERVICES"],
         "divisiones_expuestas": [],
+    },
+    {
+        "nombre": "Bean sprouts: solo Corporate Services expuesto",
+        "palabras_clave": PALABRAS_BEAN_SPROUTS,  # al menos una (OR)
+        "palabras_todas": [],
+        "divisiones_restringidas": [d for d in DIVISIONES if d != "CORPORATE SERVICES"],
+        "divisiones_expuestas": ["CORPORATE SERVICES"],
     },
     # Plantilla para agregar más reglas en el futuro:
     # {
@@ -314,10 +329,13 @@ REGLAS_ESPECIFICAS_POR_SUPPLIER = [
 # La búsqueda es ESTRICTA (palabra completa, case-insensitive): "CFA" matchea
 # "CFA CHICKEN BREAST" pero no "CFAX" ni "ORGCFA".
 #
-# Opción "solo_initial_catalog": True -> la regla se evalúa AL FINAL y solo
-# convierte a Non-Contracted los items que hubieran quedado en Initial Catalog;
-# los que ya tienen categoría propia (Banned, Local, Dairy/GnG, Bakery, PPI)
-# la conservan. Sin esta marca, la regla gana sobre todas las demás.
+# Opción "categorias_restringidas": [lista] -> la regla se evalúa AL FINAL y
+# solo convierte a Non-Contracted los items cuya categoría base (antes de
+# aplicar esta regla) esté en esa lista; los que ya tienen otra categoría
+# propia (Banned, Local, Dairy/GnG, Bakery) la conservan. Los valores deben
+# ser CAT_INITIAL_CATALOG / CAT_PPI (definidos más abajo en este archivo; se
+# usan como literales aquí porque este bloque va antes de esa definición).
+# Sin esta clave, la regla gana sobre todas las demás (evaluación temprana).
 REGLAS_NON_CONTRACTED_POR_SUPPLIER = [
     {
         "nombre": "CFA: non-contracted (R en todas) para suppliers específicos",
@@ -327,9 +345,9 @@ REGLAS_NON_CONTRACTED_POR_SUPPLIER = [
     {
         "nombre": "Panera: non-contracted (R en todas) para suppliers específicos",
         "palabras_clave": ["Panera"],
-        # Solo convierte lo que caería en Initial Catalog; no pisa Banned,
-        # Local, Dairy/GnG, Bakery ni PPI.
-        "solo_initial_catalog": True,
+        # Solo convierte lo que caería en Initial Catalog o PPI; no pisa
+        # Banned, Local, Dairy/GnG ni Bakery.
+        "categorias_restringidas": ["Initial Catalog", "PPI"],
         "supplier_ids": [
             "1000235",   # KEANY MARYLAND (Keany Produce Co)
             "1000231",   # LA GRASSO BROTHERS

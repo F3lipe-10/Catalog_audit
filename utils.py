@@ -407,6 +407,15 @@ def procesar_catalogo(
             _bypass_bot[_normalizar_id(_sid)] = _divs_norm
     supplier_ids_lista = df[config.COL_SUPPLIER_ID].apply(_normalizar_id).tolist()
 
+    # Bean sprouts / sprouts bean: R/E forzado por keyword (config.PALABRAS_
+    # BEAN_SPROUTS), no debe depender del BOT en las divisiones que sí lo
+    # consultan (CORPORATE SERVICES, UNIVERSITIES, HOSPITALS, SENIOR LIVING).
+    _palabras_bs = getattr(config, "PALABRAS_BEAN_SPROUTS", [])
+    es_bean_sprout_arr = [
+        bool(_palabras_bs) and clasificador._contiene_alguna_estricta(it, _palabras_bs)
+        for it in items_lista
+    ]
+
     # Mostrar info de caché
     items_unicos = len(cache_clasificacion)
     if items_unicos < total_filas:
@@ -462,6 +471,8 @@ def procesar_catalogo(
                 # sin BOT; no sobreescribir el estado con lógica BOT.
                 if sup_id_i in _bypass_bot and div not in _bypass_bot[sup_id_i]:
                     continue
+                if es_bean_sprout_arr[i]:
+                    continue  # R/E forzado por keyword, no depende del BOT
                 if en_bot_arr[i] and previo_list[i] == "E":
                     estado[i] = "ok"
                 elif en_bot_arr[i]:

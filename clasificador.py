@@ -234,6 +234,11 @@ def es_banned(item: str) -> bool:
     # PERO "Micro Greens Carrot Tops" debe ser Banned por el "Micro Greens"
     if _contiene_palabra(item, "carrot") and not _contiene_palabra(item, "micro"):
         return False
+    # Bean sprouts / sprouts bean no son Banned aunque "sprouts" esté en la
+    # lista; caen en Initial Catalog y el R/E se fuerza vía
+    # REGLAS_ESPECIFICAS_POR_DIVISION (config.PALABRAS_BEAN_SPROUTS).
+    if _contiene_alguna_estricta(item, getattr(config, "PALABRAS_BEAN_SPROUTS", [])):
+        return False
     return _contiene_alguna(item, CATEGORIAS["banned"])
 
 
@@ -352,7 +357,7 @@ _normalizar_supplier_id = _normalizar_id
 
 
 def es_non_contracted_por_supplier(item: str, supplier_id=None,
-                                   solo_initial_catalog=None) -> bool:
+                                   categoria_base=None, modo="fuertes") -> bool:
     """
     True si el item cae en alguna REGLA_NON_CONTRACTED_POR_SUPPLIER:
     contiene alguna de las "palabras_clave" Y su supplier_id está en la lista
@@ -361,10 +366,12 @@ def es_non_contracted_por_supplier(item: str, supplier_id=None,
     Ej: un item con "CFA" de un supplier de la lista -> Non-Contracted (R).
     La búsqueda es estricta (palabra completa) para evitar falsos positivos.
 
-    solo_initial_catalog filtra QUÉ reglas se evalúan:
-      None  -> todas las reglas (cualquier match)
-      True  -> solo las reglas marcadas "solo_initial_catalog": True
-      False -> solo las reglas que NO tienen esa marca
+    modo controla QUÉ reglas se evalúan:
+      "fuertes"      -> solo reglas SIN "categorias_restringidas" (ganan sobre
+                        todas las demás reglas de clasificación, ej. CFA)
+      "restringidas" -> solo reglas CON "categorias_restringidas", y solo si
+                        categoria_base está en esa lista (ej. Panera solo
+                        sobre Initial Catalog o PPI)
     """
     if not isinstance(item, str) or not item.strip():
         return False
@@ -374,8 +381,12 @@ def es_non_contracted_por_supplier(item: str, supplier_id=None,
         return False
 
     for regla in getattr(config, "REGLAS_NON_CONTRACTED_POR_SUPPLIER", []):
-        if solo_initial_catalog is not None:
-            if bool(regla.get("solo_initial_catalog")) != solo_initial_catalog:
+        cats_restringidas = regla.get("categorias_restringidas")
+        if modo == "fuertes":
+            if cats_restringidas:
+                continue
+        elif modo == "restringidas":
+            if not cats_restringidas or categoria_base not in cats_restringidas:
                 continue
         ids = {_normalizar_id(s) for s in regla.get("supplier_ids", [])}
         if sid not in ids:
@@ -391,21 +402,19 @@ def protegido_de_bot_charcuterie(item: str, supplier_id=None, es_carne_func=None
     True si un item Non-Contracted NO debe ser expuesto por el BOT Charcuterie
     porque su restricción viene de una REGLA_NON_CONTRACTED_POR_SUPPLIER.
 
-    - Reglas normales (ej. CFA): protegen siempre.
-    - Reglas con "solo_initial_catalog" (ej. Panera): protegen únicamente si la
-      restricción la puso la regla, es decir, si sin ella el item habría
-      quedado en Initial Catalog. Si ya era Non-Contracted por otro motivo
+    - Reglas fuertes (ej. CFA): protegen siempre.
+    - Reglas con "categorias_restringidas" (ej. Panera): protegen únicamente si
+      la restricción la puso la regla, es decir, si la categoría base (sin
+      esta regla) está en esa lista. Si ya era Non-Contracted por otro motivo
       (dairy, frozen, etc.), el BOT Charcuterie sigue mandando.
     """
-    if es_non_contracted_por_supplier(item, supplier_id, solo_initial_catalog=False):
+    if es_non_contracted_por_supplier(item, supplier_id, modo="fuertes"):
         return True
 
-    if es_non_contracted_por_supplier(item, supplier_id, solo_initial_catalog=True):
-        return _clasificar_categoria_base(
-            item, es_carne_func, supplier_id
-        ) == config.CAT_INITIAL_CATALOG
-
-    return False
+    base = _clasificar_categoria_base(item, es_carne_func, supplier_id)
+    return es_non_contracted_por_supplier(
+        item, supplier_id, categoria_base=base, modo="restringidas"
+    )
 
 
 def es_invalido(item: str) -> bool:
@@ -445,9 +454,10 @@ def clasificar_categoria(item: str, es_carne_func=None, supplier_id=None) -> str
     Devuelve la categoría del item siguiendo el ORDEN exacto de las reglas.
 
     Envuelve a _clasificar_categoria_base() para aplicar al final las
-    REGLAS_NON_CONTRACTED_POR_SUPPLIER marcadas con "solo_initial_catalog":
-    esas solo convierten a Non-Contracted lo que quedaría en Initial Catalog,
-    sin pisar categorías reales (Banned, Local, Dairy, PPI, etc.).
+    REGLAS_NON_CONTRACTED_POR_SUPPLIER que tienen "categorias_restringidas":
+    esas solo convierten a Non-Contracted lo que haya quedado en alguna de esas
+    categorías (ej. Initial Catalog o PPI), sin pisar categorías reales como
+    Banned, Local, Dairy o Bakery.
 
     Args:
         item: nombre del producto (Item description)
@@ -456,8 +466,8 @@ def clasificar_categoria(item: str, es_carne_func=None, supplier_id=None) -> str
     """
     categoria = _clasificar_categoria_base(item, es_carne_func, supplier_id)
 
-    if categoria == config.CAT_INITIAL_CATALOG and es_non_contracted_por_supplier(
-        item, supplier_id, solo_initial_catalog=True
+    if es_non_contracted_por_supplier(
+        item, supplier_id, categoria_base=categoria, modo="restringidas"
     ):
         return config.CAT_NON_CONTRACTED
 
@@ -480,9 +490,9 @@ def _clasificar_categoria_base(item: str, es_carne_func=None, supplier_id=None) 
     # 0.5 Non-contracted por keyword + supplier (ej: "CFA" en suppliers
     # específicos). Va antes de Local/Dairy/Bakery/PPI para que ninguna de esas
     # reglas pueda exponer el item: siempre debe quedar en "R".
-    # Las reglas con "solo_initial_catalog" NO entran aquí: se aplican al final,
-    # en clasificar_categoria(), solo si el item terminó en Initial Catalog.
-    if es_non_contracted_por_supplier(item, supplier_id, solo_initial_catalog=False):
+    # Las reglas con "categorias_restringidas" NO entran aquí: se aplican al
+    # final, en clasificar_categoria(), solo si la categoría base coincide.
+    if es_non_contracted_por_supplier(item, supplier_id, modo="fuertes"):
         return config.CAT_NON_CONTRACTED
 
     # 1. Banned (PRIMERO, incluso antes de Local)
