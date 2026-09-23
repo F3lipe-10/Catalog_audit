@@ -299,7 +299,72 @@ Después de clasificar se aplican cuatro capas de overrides (en orden):
 ## Personalización
 
 - **Nombres de columnas / divisiones / reglas:** edita `config.py`
-- **Agregar/quitar palabras clave (Banned, Non-contracted, PPI):** edita `categorias.json` o usa la interfaz de la app (guarda en DB)
+
+### Agregar/quitar palabras clave (Banned, Non-contracted, PPI)
+
+Hay dos formas — ambas funcionan:
+
+**Forma 1: Usar la interfaz de la app (recomendada)**
+- La app tiene una sección para editar categorías en vivo.
+- Los cambios se guardan directo en Supabase, así que afectan inmediatamente tanto a la app local como a la de producción.
+- No necesitás hacer nada más.
+
+**Forma 2: Editar `categorias.json` a mano (para cambios offline)**
+
+El archivo tiene esta estructura:
+```json
+{
+  "banned": [ "microgreen", "sprouts", ... ],
+  
+  "non_contracted": {
+    "preservation": [ "frozen", "dried", "organic", ... ],
+    "processing": [ "grilled", "roasted", ... ],
+    "condiments": [ "extract", "salt", ... ],
+    "dairy_general": [ "yogurt", "milk", "cheese", ... ],
+    "proteins": [ "beef", "meat", "bacon", ... ],
+    ... (más subcategorías)
+  },
+  
+  "ppi": {
+    "processed": [ "diced", "sliced", "shredded", ... ]
+  },
+  
+  "_excepciones_*": { ... }
+}
+```
+
+Para agregar un nuevo keyword:
+
+1. Abre `categorias.json` en un editor de texto.
+2. Localiza la categoría donde corresponde. Por ejemplo, si quieres que "congelado" sea non-contracted, búscalo en `non_contracted.preservation` (ya existe "frozen", "dried", etc.). Si quieres que "cortado en cubos" sea PPI, búscalo en `ppi.processed` (ya existe "diced", "sliced", etc.).
+3. Agrega tu palabra clave entre comillas, seguida de una coma:
+   ```json
+   "preservation": [
+     "frozen", 
+     "dried", 
+     "congelado",    ← nueva palabra
+     "organic", 
+     ...
+   ]
+   ```
+4. **Importante:** si es la última palabra de la lista, no va coma. Si queda en el medio, sí va coma.
+5. Guarda el archivo.
+
+Después, sincroniza con Supabase corriendo:
+```bash
+python migrar_a_sql.py --solo-categorias
+# Genera migracion_categorias.sql
+```
+
+Luego: Supabase → **SQL Editor** → pega el contenido de `migracion_categorias.sql` → **Run**. Los cambios quedan en la base de datos y la app los toma automáticamente en el siguiente reinicio o recarga.
+
+**Notas:**
+- Las palabras clave se buscan case-insensitive (minúsculas y mayúsculas dan el mismo resultado).
+- Plurales automáticos: no necesitás listar "apple" y "apples" — la app entiende ambas si listás una.
+- Busca en los comentarios de `categorias.json` (arriba de cada sección) para saber qué significa cada categoría.
+
+---
+
 - **Permisos de Dairy / Grab and Go / Bakery por proveedor:** `SUPPLIERS_DAIRY_GNG` en `config.py`; palabras clave en `PALABRAS_DAIRY`, `PALABRAS_GRAB_AND_GO`, `PALABRAS_BAKERY`
 - **Lógica de flores / bean sprouts:** `PALABRAS_FLOR`, `PALABRAS_FLOR_EXCLUIDAS`, `PALABRAS_BEAN_SPROUTS` en `config.py`
 - **Excepciones y overrides por proveedor:** `REGLAS_NON_CONTRACTED_POR_SUPPLIER`, `REGLAS_ESPECIFICAS_POR_SUPPLIER`, `EXCEPCIONES_POR_SKU_SUPPLIER`, `EXCEPCIONES_POR_CATEGORIA_SUPPLIER`, `EXCEPCIONES_POR_KEYWORDS_SUPPLIER` en `config.py`
